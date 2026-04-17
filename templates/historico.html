@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 
-{% block title %}Histórico de Agendamentos{% endblock %}
+{% block title %}Histórico - Barber Shop{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">📋 Histórico de Agendamentos</h2>
+<div class="container-fluid p-0">
+    <h1 class="page-header"><i class="bi bi-clock-history me-2 text-gold"></i>Histórico de Agendamentos</h1>
     
     <!-- Filtros -->
     <div class="card mb-4">
         <div class="card-body">
             <form method="get" class="row g-3">
                 <div class="col-md-3">
-                    <label class="form-label">Status</label>
+                    <label class="form-label"><i class="bi bi-filter me-1"></i>Status</label>
                     <select name="status" class="form-select">
                         <option value="">Todos</option>
                         {% for value, label in status_choices %}
@@ -22,15 +22,17 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Data Início</label>
+                    <label class="form-label"><i class="bi bi-calendar me-1"></i>Data Início</label>
                     <input type="date" name="data_inicio" class="form-control">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Data Fim</label>
+                    <label class="form-label"><i class="bi bi-calendar me-1"></i>Data Fim</label>
                     <input type="date" name="data_fim" class="form-control">
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                    <button type="submit" class="btn btn-gold w-100">
+                        <i class="bi bi-search me-1"></i> Filtrar
+                    </button>
                 </div>
             </form>
         </div>
@@ -38,18 +40,21 @@
     
     <!-- Lista de Agendamentos -->
     <div class="card">
+        <div class="card-header">
+            <i class="bi bi-list-ul me-2"></i>Lista de Agendamentos
+        </div>
         <div class="card-body">
             {% if agendamentos %}
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Data/Hora</th>
-                            <th>Cliente</th>
-                            <th>Barbeiro</th>
-                            <th>Serviço</th>
-                            <th>Status</th>
-                            <th>Ações</th>
+                            <th><i class="bi bi-calendar me-1"></i>Data/Hora</th>
+                            <th><i class="bi bi-person me-1"></i>Cliente</th>
+                            <th><i class="bi bi-person-badge me-1"></i>Barbeiro</th>
+                            <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                            <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                            <th><i class="bi bi-gear me-1"></i>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,8 +75,8 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{% url 'editar_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-primary">
-                                    Editar
+                                <a href="{% url 'editar_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-gold">
+                                    <i class="bi bi-pencil"></i> Editar
                                 </a>
                             </td>
                         </tr>
@@ -80,7 +85,7 @@
                 </table>
             </div>
             {% else %}
-            <p class="text-muted text-center">Nenhum agendamento encontrado.</p>
+            <p class="text-muted text-center py-4">Nenhum agendamento encontrado.</p>
             {% endif %}
         </div>
     </div>

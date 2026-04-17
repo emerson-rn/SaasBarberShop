@@ -1,22 +1,30 @@
 {% extends 'base.html' %}
 
+{% block title %}{% if produto %}Editar{% else %}Novo{% endif %} Produto - Barber Shop{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        {% if produto %} ✏️ Editar Produto {% else %} 📦 Novo Produto no Estoque {% endif %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header">
+        <i class="bi bi-{% if produto %}pencil{% else %}plus-circle{% endif %} me-2 text-gold"></i>
+        {% if produto %}Editar Produto{% else %}Novo Produto{% endif %}
     </h1>
-    <a href="{% url 'estoque' %}" class="btn btn-outline-secondary">Voltar ao Estoque</a>
+    <a href="{% url 'estoque' %}" class="btn btn-outline-gold">
+        <i class="bi bi-arrow-left me-1"></i> Voltar
+    </a>
 </div>
 
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-box-seam me-2"></i>{% if produto %}Editar{% else %}Cadastrar{% endif %} Produto
+            </div>
             <div class="card-body p-4">
                 <form method="POST">
                     {% csrf_token %}
                     
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Nome do Produto</label>
+                        <label class="form-label fw-bold"><i class="bi bi-tag me-1"></i>Nome do Produto</label>
                         <input type="text" name="nome" class="form-control" 
                                placeholder="Ex: Pomada Efeito Matte" 
                                value="{{ produto.nome|default:'' }}" required>
@@ -24,14 +32,14 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Quantidade</label>
+                            <label class="form-label fw-bold"><i class="bi bi-numbers me-1"></i>Quantidade</label>
                             <input type="number" name="quantidade" class="form-control" 
                                    placeholder="0" 
                                    value="{{ produto.quantidade|default:'' }}" required>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Preço Unitário (R$)</label>
+                            <label class="form-label fw-bold"><i class="bi bi-currency-dollar me-1"></i>Preço Unitário (R$)</label>
                             <input type="number" step="0.01" name="preco" class="form-control" 
                                    placeholder="0.00" 
                                    value="{{ produto.preco|stringformat:'.2f'|default:'' }}" required>
@@ -39,15 +47,23 @@
                     </div>
 
                     <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn {% if produto %} btn-primary {% else %} btn-success {% endif %} btn-lg">
-                            {% if produto %} Salvar Alterações {% else %} Cadastrar Produto {% endif %}
+                        <button type="submit" class="btn btn-gold btn-lg">
+                            <i class="bi bi-check-lg me-1"></i> {% if produto %} Salvar Alterações {% else %} Cadastrar Produto {% endif %}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
         
-        <div class="mt-4 p-3 bg-light rounded border text-center">
+        <div class="mt-4 p-3 rounded text-center" style="background: var(--primary-black); color: var(--gold);">
+            <small>
+                <i class="bi bi-info-circle me-1"></i>
+                {% if produto %} Editando ID #{{ produto.id }}{% else %} Gerando novo registro no Banco de Dados {% endif %}
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
             <small class="text-muted">
                 <strong>Status de Dados Estruturados:</strong> 
                 {% if produto %} Editando ID #{{ produto.id }} {% else %} Gerando novo registro no Banco de Dados {% endif %}

@@ -1,26 +1,38 @@
 {% extends 'base.html' %}
+
+{% block title %}Login - Barber Shop{% endblock %}
+
 {% block content %}
 <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
     <div class="col-md-4">
-        <div class="card border-0 shadow-lg">
+        <div class="card">
+            <div class="card-header" style="background: var(--primary-black);">
+                <h4 class="text-center mb-0 text-gold">
+                    <i class="bi bi-scissors me-2"></i>Barber Shop
+                </h4>
+            </div>
             <div class="card-body p-5 text-center">
-                <h2 class="mb-4">💈 Barber Login</h2>
+                <h5 class="mb-4" style="color: var(--primary-black);">Acesse sua conta</h5>
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3 text-start">
-                        <label class="form-label fw-bold">Usuário</label>
+                        <label class="form-label fw-bold"><i class="bi bi-person me-1"></i>Usuário</label>
                         <input type="text" name="username" class="form-control form-control-lg" required>
                     </div>
                     <div class="mb-4 text-start">
-                        <label class="form-label fw-bold">Senha</label>
+                        <label class="form-label fw-bold"><i class="bi bi-lock me-1"></i>Senha</label>
                         <input type="password" name="password" class="form-control form-control-lg" required>
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+                        <button type="submit" class="btn btn-gold btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
+                        </button>
                     </div>
                 </form>
-                <hr class="my-4">
-                <p class="mb-0">Não tem conta? <a href="{% url 'registro' %}" class="text-decoration-none fw-bold">Crie sua conta aqui</a></p>
+                <hr class="my-4" style="border-color: var(--gold);">
+                <p class="mb-0" style="color: var(--dark-gray);">
+                    Não tem conta? <a href="#" class="text-gold fw-bold">Crie sua conta aqui</a>
+                </p>
             </div>
         </div>
     </div>

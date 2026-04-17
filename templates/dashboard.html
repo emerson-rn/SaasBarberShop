@@ -1,63 +1,70 @@
 {% extends 'base.html' %}
 
+{% block title %}Dashboard - Barber Shop{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Bem-vindo, {{ user.username }}!</h1>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header">Bem-vindo, {{ user.username }}!</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <a href="{% url 'relatorios' %}" class="btn btn-sm btn-outline-secondary">
-            📊 Ver Relatórios
+        <a href="{% url 'relatorios' %}" class="btn btn-gold btn-sm">
+            <i class="bi bi-bar-chart me-1"></i> Ver Relatórios
         </a>
     </div>
 </div>
 
 <div class="row mb-4">
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm p-3">
+        <div class="stat-card">
             <div class="d-flex align-items-center">
-                <div class="bg-primary text-white rounded-circle p-3 me-3">📅</div>
+                <i class="bi bi-calendar-check stat-icon me-3"></i>
                 <div>
-                    <h6 class="mb-0 text-muted">Agendamentos</h6>
-                    <h4 class="mb-0">{{ total_agendamentos }} Hoje</h4>
+                    <h6>Agendamentos</h6>
+                    <h3>{{ total_agendamentos }}</h3>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm p-3">
+        <div class="stat-card">
             <div class="d-flex align-items-center">
-                <div class="bg-success text-white rounded-circle p-3 me-3">💰</div>
+                <i class="bi bi-cash-stack stat-icon me-3"></i>
                 <div>
-                    <h6 class="mb-0 text-muted">Faturamento</h6>
-                    <h4 class="mb-0">R$ {{ faturamento }}</h4>
+                    <h6>Faturamento</h6>
+                    <h3>R$ {{ faturamento }}</h3>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm p-3">
+        <div class="stat-card">
             <div class="d-flex align-items-center">
-                <div class="bg-warning text-white rounded-circle p-3 me-3">📦</div>
+                <i class="bi bi-box-seam stat-icon me-3"></i>
                 <div>
-                    <h6 class="mb-0 text-muted">Estoque</h6>
-                    <h4 class="mb-0">{{ alertas_estoque }} Alertas</h4>
+                    <h6>Estoque</h6>
+                    <h3>{{ alertas_estoque }} Alertas</h3>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-people me-2"></i>Próximos Clientes</span>
+        <a href="{% url 'novo_agendamento' %}" class="btn btn-gold btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> Novo
+        </a>
+    </div>
     <div class="card-body">
-        <h5 class="card-title">Próximos Clientes</h5>
         <div class="table-responsive">
-            <table class="table align-middle">
+            <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Cliente</th>
-                        <th>Serviço</th>
-                        <th>Horário</th>
-                        <th>Status</th>
-                        <th>Ação</th>
+                        <th><i class="bi bi-person me-1"></i>Cliente</th>
+                        <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                        <th><i class="bi bi-clock me-1"></i>Horário</th>
+                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                        <th><i class="bi bi-gear me-1"></i>Ação</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,7 +84,7 @@
                             </span>
                         </td>
                         <td>
-                        <a href="{% url 'editar_agendamento' item.id %}" class="btn btn-sm btn-outline-primary shadow-sm">
+                        <a href="{% url 'editar_agendamento' item.id %}" class="btn btn-sm btn-outline-gold">
                             ✏️ Editar
                         </a>
                     </td>

@@ -1,20 +1,30 @@
 {% extends 'base.html' %}
 
+{% block title %}Equipe - Barber Shop{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">👥 Gestão de Equipe e Clientes</h1>
-    <a href="/admin/usuarios/usuario/add/" class="btn btn-primary shadow-sm">+ Novo Usuário</a>
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header"><i class="bi bi-people me-2 text-gold"></i>Gestão de Equipe</h1>
+    <a href="/admin/usuarios/usuario/add/" class="btn btn-gold">
+        <i class="bi bi-plus-lg me-1"></i> Novo Usuário
+    </a>
 </div>
 
-<ul class="nav nav-tabs mb-4" id="equipeTab" role="tablist">
+<ul class="nav nav-tabs mb-4" id="equipeTab" role="tablist" style="border-bottom: 2px solid var(--gold);">
   <li class="nav-item">
-    <button class="nav-link active fw-bold" id="barbeiros-tab" data-bs-toggle="tab" data-bs-target="#barbeiros" type="button">💈 Barbeiros</button>
+    <button class="nav-link active fw-bold" id="barbeiros-tab" data-bs-toggle="tab" data-bs-target="#barbeiros" type="button" style="color: var(--primary-black);">
+        <i class="bi bi-scissors me-1"></i> Barbeiros
+    </button>
   </li>
   <li class="nav-item">
-    <button class="nav-link fw-bold" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">👤 Clientes</button>
+    <button class="nav-link fw-bold" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button" style="color: var(--primary-black);">
+        <i class="bi bi-person me-1"></i> Clientes
+    </button>
   </li>
   <li class="nav-item">
-    <button class="nav-link fw-bold" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button">⚙️ Admins</button>
+    <button class="nav-link fw-bold" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button" style="color: var(--primary-black);">
+        <i class="bi bi-shield-lock me-1"></i> Admins
+    </button>
   </li>
 </ul>
 
@@ -23,12 +33,12 @@
   <div class="tab-pane fade show active" id="barbeiros" role="tabpanel">
     <div class="row">
         {% for b in barbeiros %}
-            <div class="col-md-3 mb-3">
-                <div class="card border-0 shadow-sm text-center p-3 border-top border-primary border-4">
-                    <div class="bg-primary text-white rounded-circle mx-auto mb-2" style="width: 50px; height: 50px; line-height: 50px; font-size: 20px;">
-                        {{ b.username|first|upper }}
+            <div class="col-md-3 mb-4">
+                <div class="card text-center p-4" style="border-top: 4px solid var(--gold);">
+                    <div class="icon-gold mx-auto mb-3" style="width: 60px; height: 60px; line-height: 60px; font-size: 24px; background: var(--primary-black); border-radius: 50%;">
+                        <i class="bi bi-person"></i>
                     </div>
-                    <h6 class="mb-0">{{ b.username }}</h6>
+                    <h6 class="mb-1">{{ b.username }}</h6>
                     <small class="text-muted">Profissional</small>
                 </div>
             </div>
@@ -39,44 +49,51 @@
   </div>
 
   <div class="tab-pane fade" id="clientes" role="tabpanel">
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th class="ps-4">Nome do Cliente</th>
-                        <th>Email</th>
-                        <th class="text-center">Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in clientes %}
-                    <tr>
-                        <td class="ps-4"><strong>{{ c.username }}</strong></td>
-                        <td>{{ c.email|default:"Não informado" }}</td>
-                        <td class="text-center">
-                            <a href="/admin/usuarios/usuario/{{ c.id }}/change/" class="btn btn-sm btn-outline-secondary">Ver Perfil</a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="3" class="text-center py-4">Nenhum cliente cadastrado.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4"><i class="bi bi-person me-1"></i>Cliente</th>
+                            <th><i class="bi bi-envelope me-1"></i>Email</th>
+                            <th class="text-center"><i class="bi bi-gear me-1"></i>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in clientes %}
+                        <tr>
+                            <td class="ps-4"><strong>{{ c.username }}</strong></td>
+                            <td>{{ c.email|default:"Não informado" }}</td>
+                            <td class="text-center">
+                                <a href="/admin/usuarios/usuario/{{ c.id }}/change/" class="btn btn-sm btn-outline-gold">Ver Perfil</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center py-4">Nenhum cliente cadastrado.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
   </div>
 
   <div class="tab-pane fade" id="admins" role="tabpanel">
-    <div class="list-group shadow-sm">
-        {% for a in administradores %}
-            <div class="list-group-item d-flex justify-content-between align-items-center">
-                <span><strong>{{ a.username }}</strong> ({{ a.email }})</span>
-                <span class="badge bg-dark rounded-pill">Acesso Total</span>
-            </div>
-        {% empty %}
-            <div class="list-group-item">Nenhum administrador encontrado.</div>
-        {% endfor %}
+    <div class="card">
+        <div class="list-group list-group-flush">
+            {% for a in administradores %}
+                <div class="list-group-item d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #e8e8e8;">
+                    <div>
+                        <strong>{{ a.username }}</strong>
+                        <small class="text-muted d-block">{{ a.email }}</small>
+                    </div>
+                    <span class="badge" style="background: var(--gold); color: var(--primary-black);">Acesso Total</span>
+                </div>
+            {% empty %}
+                <div class="list-group-item">Nenhum administrador encontrado.</div>
+            {% endfor %}
+        </div>
     </div>
   </div>
 

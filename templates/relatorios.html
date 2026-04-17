@@ -1,34 +1,43 @@
 {% extends 'base.html' %}
 
-{% block title %}Relatórios{% endblock %}
+{% block title %}Relatórios - Barber Shop{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2 class="mb-4">📊 Relatórios e Estatísticas</h2>
+<div class="container-fluid p-0">
+    <h1 class="page-header"><i class="bi bi-bar-chart me-2 text-gold"></i>Relatórios e Estatísticas</h1>
     
     <!-- Cards de Resumo -->
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total de Agendamentos</h5>
-                    <h2>{{ total_agendamentos }}</h2>
+            <div class="stat-card">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-check stat-icon me-3"></i>
+                    <div>
+                        <h6>Total de Agendamentos</h6>
+                        <h3>{{ total_agendamentos }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Finalizados</h5>
-                    <h2>{{ agendamentos_finalizados }}</h2>
+            <div class="stat-card" style="background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle stat-icon me-3"></i>
+                    <div>
+                        <h6>Finalizados</h6>
+                        <h3>{{ agendamentos_finalizados }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Faturamento (30 dias)</h5>
-                    <h2>R$ {{ faturamento_total|floatformat:2 }}</h2>
+            <div class="stat-card">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-cash-stack stat-icon me-3"></i>
+                    <div>
+                        <h6>Faturamento (30 dias)</h6>
+                        <h3>R$ {{ faturamento_total|floatformat:2 }}</h3>
+                    </div>
                 </div>
             </div>
         </div>
@@ -36,11 +45,10 @@
     
     <!-- Gráficos -->
     <div class="row mb-4">
-        <!-- Agendamentos por Status -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Agendamentos por Status</h5>
+                    <i class="bi bi-pie-chart me-2"></i>Agendamentos por Status
                 </div>
                 <div class="card-body">
                     <canvas id="chartStatus"></canvas>
@@ -48,11 +56,10 @@
             </div>
         </div>
         
-        <!-- Agendamentos por Serviço -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Serviços Mais Populares</h5>
+                    <i class="bi bi-bar-chart me-2"></i>Serviços Mais Populares
                 </div>
                 <div class="card-body">
                     <canvas id="chartServicos"></canvas>
@@ -63,21 +70,89 @@
     
     <!-- Tabelas -->
     <div class="row">
-        <!-- Top Barbeiros -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Top Barbeiros</h5>
+                    <i class="bi bi-trophy me-2"></i>Top Barbeiros
                 </div>
                 <div class="card-body">
                     <table class="table table-sm">
                         <thead>
                             <tr>
-                                <th>Barbeiro</th>
-                                <th>Atendimentos</th>
-                                <th>Faturamento</th>
+                                <th><i class="bi bi-person me-1"></i>Barbeiro</th>
+                                <th><i class="bi bi-scissors me-1"></i>Atendimentos</th>
+                                <th><i class="bi bi-cash me-1"></i>Faturamento</th>
                             </tr>
                         </thead>
+                        <tbody>
+                            {% for barbeiro in por_barbeiro %}
+                            <tr>
+                                <td>{{ barbeiro.barbeiro__username }}</td>
+                                <td>{{ barbeiro.count }}</td>
+                                <td>R$ {{ barbeiro.faturamento|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #8b0000 0%, #5c0000 100%);">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Produtos em Falta
+                </div>
+                <div class="card-body">
+                    {% if produtos_falta %}
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-box me-1"></i>Produto</th>
+                                <th><i class="bi bi-numbers me-1"></i>Estoque</th>
+                                <th><i class="bi bi-flag me-1"></i>Mínimo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produto in produtos_falta %}
+                            <tr>
+                                <td>{{ produto.nome }}</td>
+                                <td class="text-danger fw-bold">{{ produto.quantidade }}</td>
+                                <td>{{ produto.quantidade_minima }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center py-3"><i class="bi bi-check-circle text-success me-2"></i>Nenhum produto em falta!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Status
+    const ctxStatus = document.getElementById('chartStatus').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for item in por_status %}'{{ item.status }}',{% endfor %}],
+            datasets: [{
+                data: [{% for item in por_status %}{{ item.count }},{% endfor %}],
+                backgroundColor: ['#d4af37', '#e8c547', '#b8962e', '#1a1a1a', '#dc3545']
+            }]
+        }
+    });
+    
+    // Gráfico de Serviços
+    const ctxServicos = document.getElementById('chartServicos').getContext('2d');
+    new Chart(ctxServicos, {
+        type: 'bar',
+        data: {
                         <tbody>
                             {% for barbeiro in por_barbeiro %}
                             <tr>
