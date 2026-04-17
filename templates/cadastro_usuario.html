@@ -24,18 +24,50 @@
                     
                     <div class="mb-3">
                         <label class="form-label fw-bold"><i class="bi bi-person me-1"></i>Nome de Usuário</label>
-                        <input type="text" name="username" class="form-control" required>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-envelope me-1"></i>Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-person-badge me-1"></i>Tipo de Usuário</label>
+                        {{ form.tipo }}
+                        {% if form.tipo.errors %}
+                            <div class="text-danger small">{{ form.tipo.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold"><i class="bi bi-telephone me-1"></i>Telefone</label>
+                        {{ form.telefone }}
+                        {% if form.telefone.errors %}
+                            <div class="text-danger small">{{ form.telefone.errors }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold"><i class="bi bi-lock me-1"></i>Senha</label>
-                        <input type="password" name="password1" class="form-control" required>
-                        <small class="text-muted">Mínimo 8 caracteres</small>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger small">{{ form.password1.errors }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-bold"><i class="bi bi-lock-fill me-1"></i>Confirmar Senha</label>
-                        <input type="password" name="password2" class="form-control" required>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small">{{ form.password2.errors }}</div>
+                        {% endif %}
                     </div>
 
                     <div class="d-grid gap-2">
