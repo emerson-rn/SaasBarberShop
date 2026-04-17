@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-lg">
+            <div class="card-body p-5 text-center">
+                <h2 class="mb-4">💈 Barber Login</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-bold">Usuário</label>
+                        <input type="text" name="username" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="mb-4 text-start">
+                        <label class="form-label fw-bold">Senha</label>
+                        <input type="password" name="password" class="form-control form-control-lg" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+                    </div>
+                </form>
+                <hr class="my-4">
+                <p class="mb-0">Não tem conta? <a href="{% url 'registro' %}" class="text-decoration-none fw-bold">Crie sua conta aqui</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

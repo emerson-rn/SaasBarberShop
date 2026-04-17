@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">👥 Gestão de Equipe e Clientes</h1>
+    <a href="/admin/usuarios/usuario/add/" class="btn btn-primary shadow-sm">+ Novo Usuário</a>
+</div>
+
+<ul class="nav nav-tabs mb-4" id="equipeTab" role="tablist">
+  <li class="nav-item">
+    <button class="nav-link active fw-bold" id="barbeiros-tab" data-bs-toggle="tab" data-bs-target="#barbeiros" type="button">💈 Barbeiros</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link fw-bold" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#clientes" type="button">👤 Clientes</button>
+  </li>
+  <li class="nav-item">
+    <button class="nav-link fw-bold" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admins" type="button">⚙️ Admins</button>
+  </li>
+</ul>
+
+<div class="tab-content" id="equipeTabContent">
+  
+  <div class="tab-pane fade show active" id="barbeiros" role="tabpanel">
+    <div class="row">
+        {% for b in barbeiros %}
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm text-center p-3 border-top border-primary border-4">
+                    <div class="bg-primary text-white rounded-circle mx-auto mb-2" style="width: 50px; height: 50px; line-height: 50px; font-size: 20px;">
+                        {{ b.username|first|upper }}
+                    </div>
+                    <h6 class="mb-0">{{ b.username }}</h6>
+                    <small class="text-muted">Profissional</small>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted ps-3">Nenhum barbeiro encontrado.</p>
+        {% endfor %}
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="clientes" role="tabpanel">
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Nome do Cliente</th>
+                        <th>Email</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes %}
+                    <tr>
+                        <td class="ps-4"><strong>{{ c.username }}</strong></td>
+                        <td>{{ c.email|default:"Não informado" }}</td>
+                        <td class="text-center">
+                            <a href="/admin/usuarios/usuario/{{ c.id }}/change/" class="btn btn-sm btn-outline-secondary">Ver Perfil</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" class="text-center py-4">Nenhum cliente cadastrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="admins" role="tabpanel">
+    <div class="list-group shadow-sm">
+        {% for a in administradores %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong>{{ a.username }}</strong> ({{ a.email }})</span>
+                <span class="badge bg-dark rounded-pill">Acesso Total</span>
+            </div>
+        {% empty %}
+            <div class="list-group-item">Nenhum administrador encontrado.</div>
+        {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

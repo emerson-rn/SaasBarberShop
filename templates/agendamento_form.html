@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">➕ Novo Agendamento</h1>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Voltar para Agenda</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Cliente</label>
+                        <select name="cliente" class="form-select" required>
+                            {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}">{{ cliente.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold">Serviço</label>
+                            <select name="servico" class="form-select" required>
+                                {% for servico in servicos %}
+                                    <option value="{{ servico.id }}">{{ servico.nome }} - R$ {{ servico.preco }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label font-weight-bold">Barbeiro</label>
+                            <select name="barbeiro" class="form-select" required>
+                                {% for barbeiro in barbeiros %}
+                                    <option value="{{ barbeiro.id }}">{{ barbeiro.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label font-weight-bold">Data e Horário</label>
+                        <input type="datetime-local" name="data_hora" class="form-control" required>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Confirmar Agendamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

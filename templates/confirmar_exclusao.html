@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <h3 class="text-danger mb-4">Confirmar Exclusão</h3>
+                    <p>Tem certeza que deseja excluir o item: <strong>{{ item.nome }}</strong>?</p>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4">Sim, Deletar</button>
+                        <a href="{% url 'estoque' %}" class="btn btn-secondary px-4">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

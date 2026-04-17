@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        {% if produto %} ✏️ Editar Produto {% else %} 📦 Novo Produto no Estoque {% endif %}
+    </h1>
+    <a href="{% url 'estoque' %}" class="btn btn-outline-secondary">Voltar ao Estoque</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nome do Produto</label>
+                        <input type="text" name="nome" class="form-control" 
+                               placeholder="Ex: Pomada Efeito Matte" 
+                               value="{{ produto.nome|default:'' }}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Quantidade</label>
+                            <input type="number" name="quantidade" class="form-control" 
+                                   placeholder="0" 
+                                   value="{{ produto.quantidade|default:'' }}" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Preço Unitário (R$)</label>
+                            <input type="number" step="0.01" name="preco" class="form-control" 
+                                   placeholder="0.00" 
+                                   value="{{ produto.preco|stringformat:'.2f'|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn {% if produto %} btn-primary {% else %} btn-success {% endif %} btn-lg">
+                            {% if produto %} Salvar Alterações {% else %} Cadastrar Produto {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="mt-4 p-3 bg-light rounded border text-center">
+            <small class="text-muted">
+                <strong>Status de Dados Estruturados:</strong> 
+                {% if produto %} Editando ID #{{ produto.id }} {% else %} Gerando novo registro no Banco de Dados {% endif %}
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}

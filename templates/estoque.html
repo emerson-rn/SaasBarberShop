@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">📦 Controle de Estoque</h1>
+    <a href="{% url 'novo_produto' %}" class="btn btn-primary shadow-sm">
+        ➕ Novo Item
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-3 border-start border-danger border-4">
+            <h6 class="text-muted text-uppercase small">Itens em Alerta (≤ 5)</h6>
+            <h4 class="text-danger mb-0">{{ itens_baixo_estoque }} Produtos</h4>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-3 border-start border-success border-4">
+            <h6 class="text-muted text-uppercase small">Variedade de Itens</h6>
+            <h4 class="text-success mb-0">{{ total_itens }} Cadastrados</h4>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0"> 
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th class="ps-4">Produto</th>
+                    <th>Qtd Atual</th>
+                    <th>Preço Un.</th>
+                    <th>Status</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr>
+                    <td class="ps-4"><strong>{{ produto.nome }}</strong></td>
+                    <td>{{ produto.quantidade }} unid.</td>
+                    <td>R$ {{ produto.preco_custo }}</td>
+                    <td>
+                        {% if produto.quantidade <= 5 %}
+                            <span class="badge bg-danger">Repor Urgente</span>
+                        {% elif produto.quantidade <= 10 %}
+                            <span class="badge bg-warning text-dark">Atenção</span>
+                        {% else %}
+                            <span class="badge bg-success">Normal</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'editar_produto' produto.id %}" class="btn btn-sm btn-outline-secondary me-1" title="Editar">
+                            ✏️
+                        </a>
+                        <a href="{% url 'deletar_produto' produto.id %}" class="btn btn-sm btn-outline-danger" title="Excluir">
+                            🗑️
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">Nenhum produto cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
