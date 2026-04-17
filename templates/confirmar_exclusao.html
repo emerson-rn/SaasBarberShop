@@ -1,17 +1,29 @@
 {% extends 'base.html' %}
 
+{% block title %}Confirmar Exclusão - Barber Shop{% endblock %}
+
 {% block content %}
 <div class="container pt-5">
     <div class="row justify-content-center">
         <div class="col-md-5">
-            <div class="card border-0 shadow-sm">
+            <div class="card">
+                <div class="card-header" style="background: linear-gradient(135deg, #8b0000 0%, #5c0000 100%);">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Exclusão
+                </div>
                 <div class="card-body text-center p-4">
-                    <h3 class="text-danger mb-4">Confirmar Exclusão</h3>
-                    <p>Tem certeza que deseja excluir o item: <strong>{{ item.nome }}</strong>?</p>
-                    <form method="POST">
+                    <div class="mb-4">
+                        <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
+                    </div>
+                    <p class="mb-4">Tem certeza que deseja excluir o item:</p>
+                    <h4 class="text-danger mb-4">{{ item.nome }}</h4>
+                    <form method="POST" class="d-flex gap-2 justify-content-center">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger px-4">Sim, Deletar</button>
-                        <a href="{% url 'estoque' %}" class="btn btn-secondary px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-check-lg me-1"></i> Sim, Deletar
+                        </button>
+                        <a href="{% url 'estoque' %}" class="btn btn-outline-gold px-4">
+                            <i class="bi bi-x-lg me-1"></i> Cancelar
+                        </a>
                     </form>
                 </div>
             </div>

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
     <h1 class="page-header"><i class="bi bi-people me-2 text-gold"></i>Gestão de Equipe</h1>
-    <a href="/admin/usuarios/usuario/add/" class="btn btn-gold">
+    <a href="{% url 'novo_usuario' %}" class="btn btn-gold">
         <i class="bi bi-plus-lg me-1"></i> Novo Usuário
     </a>
 </div>

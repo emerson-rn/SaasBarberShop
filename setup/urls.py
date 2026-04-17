@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from agendamentos import views
 from agendamentos.views import dashboard_barbeiro, lista_estoque, lista_equipe
+from usuarios import views as usuarios_views
 
 urlpatterns = [
     # Página inicial (abre direto na dashboard)
@@ -40,4 +41,7 @@ urlpatterns = [
     path('historico/', views.historico_agendamentos, name='historico'),
     path('relatorios/', views.relatorios, name='relatorios'),
     path('agendamento/status/<int:pk>/', views.atualizar_status_agendamento, name='atualizar_status'),
+    
+    # Usuários
+    path('novo-usuario/', usuarios_views.cadastrar_usuario, name='novo_usuario'),
 ]
