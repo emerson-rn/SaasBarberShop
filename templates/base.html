@@ -44,6 +44,16 @@
                             <a href="{% url 'novo_agendamento' %}" class="nav-link">
                                 ➕ Novo Corte
                             </a>
+                            
+                            <div class="sidebar-heading">Relatórios</div>
+                            
+                            <a href="{% url 'historico' %}" class="nav-link {% if request.resolver_match.url_name == 'historico' %}active{% endif %}">
+                                📋 Histórico
+                            </a>
+                            
+                            <a href="{% url 'relatorios' %}" class="nav-link {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}">
+                                📊 Relatórios
+                            </a>
                         {% endif %}
                         
                         <a href="/admin/" class="nav-link">

@@ -4,21 +4,35 @@ from django.forms import ValidationError
 from core.models import Servico
 
 class Agendamento(models.Model):
+    STATUS_CHOICES = [
+        ('agendado', 'Agendado'),
+        ('confirmado', 'Confirmado'),
+        ('em_andamento', 'Em Andamento'),
+        ('finalizado', 'Finalizado'),
+        ('cancelado', 'Cancelado'),
+    ]
+    
     cliente = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE,  # Corrigido aqui
+        on_delete=models.CASCADE,
         related_name='agendamentos_cliente'
     )
     barbeiro = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE,  # Corrigido aqui
+        on_delete=models.CASCADE,
         related_name='agendamentos_barbeiro'
     )
     servico = models.ForeignKey(
         Servico, 
-        on_delete=models.CASCADE   # Corrigido aqui
+        on_delete=models.CASCADE
     )
     data_hora = models.DateTimeField()
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='agendado'
+    )
+    observacoes = models.TextField(blank=True, null=True)
     finalizado = models.BooleanField(default=False)
 
     def clean(self):

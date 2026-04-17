@@ -3,6 +3,8 @@ from .models import Agendamento
 from core.models import Produto, Servico 
 from usuarios.models import Usuario
 from django.contrib.auth.decorators import login_required
+from django.db.models import F
+from django.http import JsonResponse
 
 @login_required
 def dashboard_barbeiro(request):
@@ -120,3 +122,113 @@ def deletar_produto(request, pk):
         produto.delete()
         return redirect('estoque')
     return render(request, 'confirmar_exclusao.html', {'item': produto, 'tipo': 'produto'})
+
+# --- NOVAS FUNCIONALIDADES ---
+
+@login_required
+def historico_agendamentos(request):
+    """View para histórico de agendamentos do usuário logado"""
+    # Filtrar por tipo de usuário
+    if request.user.tipo == 'BARBEIRO':
+        agendamentos = Agendamento.objects.filter(barbeiro=request.user)
+    elif request.user.tipo == 'CLIENTE':
+        agendamentos = Agendamento.objects.filter(cliente=request.user)
+    else:  # ADMIN vê todos
+        agendamentos = Agendamento.objects.all()
+    
+    # Filtragem por status
+    status_filter = request.GET.get('status')
+    if status_filter:
+        agendamentos = agendamentos.filter(status=status_filter)
+    
+    # Filtragem por data
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    if data_inicio:
+        agendamentos = agendamentos.filter(data_hora__gte=data_inicio)
+    if data_fim:
+        agendamentos = agendamentos.filter(data_hora__lte=data_fim)
+    
+    agendamentos = agendamentos.order_by('-data_hora')
+    
+    context = {
+        'agendamentos': agendamentos,
+        'status_choices': Agendamento.STATUS_CHOICES,
+        'status_filter': status_filter,
+    }
+    return render(request, 'historico.html', context)
+
+@login_required
+def relatorios(request):
+    """View para relatórios e estatísticas"""
+    from django.db.models import Count, Sum, Avg
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    # Período padrão: últimos 30 dias
+    data_limite = timezone.now() - timedelta(days=30)
+    
+    # Estatísticas de agendamentos
+    total_agendamentos = Agendamento.objects.filter(data_hora__gte=data_limite).count()
+    agendamentos_finalizados = Agendamento.objects.filter(
+        data_hora__gte=data_limite, 
+        status='finalizado'
+    ).count()
+    
+    # Faturamento
+    faturamento_total = Agendamento.objects.filter(
+        data_hora__gte=data_limite,
+        status='finalizado'
+    ).aggregate(total=Sum('servico__preco'))['total'] or 0
+    
+    # Agendamentos por status
+    por_status = Agendamento.objects.filter(
+        data_hora__gte=data_limite
+    ).values('status').annotate(count=Count('id'))
+    
+    # Agendamentos por serviço
+    por_servico = Agendamento.objects.filter(
+        data_hora__gte=data_limite
+    ).values('servico__nome').annotate(count=Count('id')).order_by('-count')[:5]
+    
+    # Agendamentos por barbeiro
+    por_barbeiro = Agendamento.objects.filter(
+        data_hora__gte=data_limite
+    ).values('barbeiro__username').annotate(
+        count=Count('id'),
+        faturamento=Sum('servico__preco')
+    ).order_by('-count')[:5]
+    
+    # Produtos em falta
+    produtos_falta = Produto.objects.filter(
+        quantidade__lte=F('quantidade_minima')
+    ).order_by('quantidade')
+    
+    context = {
+        'total_agendamentos': total_agendamentos,
+        'agendamentos_finalizados': agendamentos_finalizados,
+        'faturamento_total': faturamento_total,
+        'por_status': por_status,
+        'por_servico': por_servico,
+        'por_barbeiro': por_barbeiro,
+        'produtos_falta': produtos_falta,
+    }
+    return render(request, 'relatorios.html', context)
+
+@login_required
+def atualizar_status_agendamento(request, pk):
+    """View para atualizar o status de um agendamento via AJAX"""
+    if request.method == 'POST':
+        agendamento = get_object_or_404(Agendamento, pk=pk)
+        novo_status = request.POST.get('status')
+        
+        if novo_status in dict(Agendamento.STATUS_CHOICES):
+            agendamento.status = novo_status
+            if novo_status == 'finalizado':
+                agendamento.finalizado = True
+            agendamento.save()
+            return JsonResponse({'success': True, 'status': novo_status})
+        
+        return JsonResponse({'success': False, 'error': 'Status inválido'}, status=400)
+    
+    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)

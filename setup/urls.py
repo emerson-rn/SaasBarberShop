@@ -35,4 +35,9 @@ urlpatterns = [
     path('estoque/novo/', views.novo_produto, name='novo_produto'),
     path('estoque/editar/<int:pk>/', views.editar_produto, name='editar_produto'),
     path('estoque/deletar/<int:pk>/', views.deletar_produto, name='deletar_produto'),
+    
+    # Novas funcionalidades
+    path('historico/', views.historico_agendamentos, name='historico'),
+    path('relatorios/', views.relatorios, name='relatorios'),
+    path('agendamento/status/<int:pk>/', views.atualizar_status_agendamento, name='atualizar_status'),
 ]

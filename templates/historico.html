@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico de Agendamentos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">📋 Histórico de Agendamentos</h2>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Data Início</label>
+                    <input type="date" name="data_inicio" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Data Fim</label>
+                    <input type="date" name="data_fim" class="form-control">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Agendamentos -->
+    <div class="card">
+        <div class="card-body">
+            {% if agendamentos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Cliente</th>
+                            <th>Barbeiro</th>
+                            <th>Serviço</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
+                            <td>{{ agendamento.cliente.username }}</td>
+                            <td>{{ agendamento.barbeiro.username }}</td>
+                            <td>{{ agendamento.servico.nome }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if agendamento.status == 'agendado' %}bg-primary
+                                    {% elif agendamento.status == 'confirmado' %}bg-info
+                                    {% elif agendamento.status == 'em_andamento' %}bg-warning
+                                    {% elif agendamento.status == 'finalizado' %}bg-success
+                                    {% elif agendamento.status == 'cancelado' %}bg-danger{% endif %}">
+                                    {{ agendamento.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'editar_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-primary">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center">Nenhum agendamento encontrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
