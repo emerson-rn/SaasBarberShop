@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Avaliações{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-header mb-0"><i class="bi bi-star-fill icon-gold me-2"></i>Avaliações</h1>
+    {% if user.tipo == 'CLIENTE' or user.tipo == 'ADMIN' or user.is_staff %}
+        <a href="{% url 'nova_avaliacao' %}" class="btn btn-gold">
+            <i class="bi bi-plus-circle me-1"></i> Nova Avaliação
+        </a>
+    {% endif %}
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3"><div class="stat-card"><i class="bi bi-chat-square-heart stat-icon"></i><h6>Total de avaliações</h6><h3>{{ total_avaliacoes }}</h3></div></div>
+    <div class="col-md-6 mb-3"><div class="stat-card"><i class="bi bi-star-half stat-icon"></i><h6>Média de notas</h6><h3>{{ media_notas|floatformat:1 }}</h3></div></div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="bi bi-list-stars me-2"></i>Últimas avaliações</div>
+    <div class="card-body">
+        {% if avaliacoes %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead><tr><th>Cliente</th><th>Barbeiro</th><th>Nota</th><th>Comentário</th><th>Data</th></tr></thead>
+                    <tbody>
+                        {% for avaliacao in avaliacoes %}
+                        <tr>
+                            <td>{{ avaliacao.cliente.username }}</td>
+                            <td>{{ avaliacao.barbeiro.username }}</td>
+                            <td>
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avaliacao.nota %}<i class="bi bi-star-fill text-gold"></i>{% else %}<i class="bi bi-star text-muted"></i>{% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>{{ avaliacao.comentario|default:'Sem comentário' }}</td>
+                            <td>{{ avaliacao.criado_em|date:'d/m/Y H:i' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">Nenhuma avaliação cadastrada ainda.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if user.tipo == 'ADMIN' or user.is_staff %}
+<div class="card">
+    <div class="card-header"><i class="bi bi-person-check me-2"></i>Média por barbeiro</div>
+    <div class="card-body">
+        {% if por_barbeiro %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead><tr><th>Barbeiro</th><th>Média</th><th>Total</th></tr></thead>
+                    <tbody>
+                        {% for item in por_barbeiro %}
+                        <tr><td>{{ item.barbeiro__username }}</td><td>{{ item.media|floatformat:1 }}</td><td>{{ item.total }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted mb-0">Ainda não há dados para mostrar.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

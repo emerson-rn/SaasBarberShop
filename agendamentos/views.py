@@ -11,10 +11,19 @@ def dashboard_barbeiro(request):
     # DADOS ESTRUTURADOS: Busca a agenda ordenada
     agenda = Agendamento.objects.all().order_by('data_hora')
     
+    # Atualiza status automaticamente para agendamentos atrasados
+    for agendamento in agenda:
+        if agendamento.is_atrasado():
+            agendamento.save()
+    
     # CONTROLE DE FLUXO: Cálculos para os indicadores da Dashboard
     total_agendamentos = agenda.count()
     faturamento = sum(item.servico.preco for item in agenda if item.finalizado)
     alertas_estoque = Produto.objects.filter(quantidade__lte=5).count()
+    
+    # Adicionar tempo restante para cada agendamento
+    for agendamento in agenda:
+        agendamento.tempo_restante_segundos = agendamento.tempo_restante()
     
     context = {
         'agenda': agenda,
@@ -24,7 +33,7 @@ def dashboard_barbeiro(request):
     }
     return render(request, 'dashboard.html', context)
 
-def lista_estoque(request):
+def estoque_view(request):
     # DADOS ESTRUTURADOS: Busca todos os produtos
     produtos = Produto.objects.all().order_by('nome')
     
@@ -114,17 +123,18 @@ def editar_agendamento(request, pk):
     return render(request, 'agendamento_form.html', context)
 
 # --- NOVA FUNÇÃO PARA CADASTRAR PRODUTO NO ESTOQUE ---
+@login_required
 def novo_produto(request):
     if request.method == 'POST':
         nome = request.POST.get('nome')
-        quantidade = request.POST.get('quantidade')
-        preco_venda = request.POST.get('preco') # Vem do 'name' do input no HTML
+        quantidade = int(request.POST.get('quantidade', 0))
+        preco_venda = float(request.POST.get('preco', 0))
 
         # Aqui usamos 'preco_custo' para bater com seu Model
         Produto.objects.create(
             nome=nome,
             quantidade=quantidade,
-            preco_custo=preco_venda  
+            preco_custo=preco_venda
         )
         return redirect('estoque')
 

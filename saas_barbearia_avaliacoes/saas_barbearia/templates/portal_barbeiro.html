@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Portal do Barbeiro - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header">
+        <i class="bi bi-scissors me-2 text-gold"></i>Portal do Barbeiro
+    </h1>
+    <div>
+        <span class="me-3">Olá, <strong>{{ user.first_name }} {{ user.last_name }}</strong></span>
+    </div>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-calendar-check fs-1 icon-gold mb-2"></i>
+            <h5>Agendamentos Hoje</h5>
+            <h3 class="text-gold">{{ agendamentos_hoje.count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-clock fs-1 icon-gold mb-2"></i>
+            <h5>Próximos</h5>
+            <h3 class="text-gold">{{ agendamentos_futuros.count }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-check-circle fs-1 icon-gold mb-2"></i>
+            <h5>Serviços Realizados</h5>
+            <h3 class="text-gold">{{ total_servicos }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-currency-dollar fs-1 icon-gold mb-2"></i>
+            <h5>Total Ganho</h5>
+            <h3 class="text-gold">R$ {{ total_ganho|floatformat:2 }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Agendamentos de Hoje -->
+<div class="card mb-4">
+    <div class="card-header" style="background: var(--primary-black); color: var(--gold);">
+        <i class="bi bi-sun me-2"></i>Agendamentos de Hoje
+    </div>
+    <div class="card-body">
+        {% if agendamentos_hoje %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-person me-1"></i>Cliente</th>
+                        <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                        <th><i class="bi bi-clock me-1"></i>Horário</th>
+                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                        <th><i class="bi bi-gear me-1"></i>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agendamentos_hoje %}
+                    <tr>
+                        <td><strong>{{ a.cliente.first_name }} {{ a.cliente.last_name }}</strong></td>
+                        <td>{{ a.servico.nome }}<br><small class="text-muted">R$ {{ a.servico.preco }}</small></td>
+                        <td>{{ a.data_hora|date:"H:i" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if a.status == 'agendado' %}bg-primary
+                                {% elif a.status == 'confirmado' %}bg-info
+                                {% elif a.status == 'em_andamento' %}bg-warning
+                                {% elif a.status == 'finalizado' %}bg-success
+                                {% elif a.status == 'cancelado' %}bg-danger{% endif %}">
+                                {{ a.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <form method="POST" action="{% url 'atualizar_status' a.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="em_andamento">
+                                <button type="submit" class="btn btn-sm btn-warning" {% if a.status == 'em_andamento' or a.status == 'finalizado' %}disabled{% endif %}>
+                                    <i class="bi bi-play"></i> Iniciar
+                                </button>
+                            </form>
+                            <form method="POST" action="{% url 'atualizar_status' a.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="finalizado">
+                                <button type="submit" class="btn btn-sm btn-success" {% if a.status == 'finalizado' %}disabled{% endif %}>
+                                    <i class="bi bi-check-lg"></i> Finalizar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+            <p class="text-muted">Você não tem agendamentos para hoje.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Próximos Agendamentos -->
+<div class="card mb-4">
+    <div class="card-header" style="background: var(--secondary-black); color: var(--white);">
+        <i class="bi bi-clock me-2"></i>Próximos Agendamentos
+    </div>
+    <div class="card-body">
+        {% if agendamentos_futuros %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-person me-1"></i>Cliente</th>
+                        <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                        <th><i class="bi bi-calendar me-1"></i>Data</th>
+                        <th><i class="bi bi-clock me-1"></i>Horário</th>
+                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agendamentos_futuros %}
+                    <tr>
+                        <td><strong>{{ a.cliente.first_name }} {{ a.cliente.last_name }}</strong></td>
+                        <td>{{ a.servico.nome }}<br><small class="text-muted">R$ {{ a.servico.preco }}</small></td>
+                        <td>{{ a.data_hora|date:"d/m/Y" }}</td>
+                        <td>{{ a.data_hora|date:"H:i" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if a.status == 'agendado' %}bg-primary
+                                {% elif a.status == 'confirmado' %}bg-info
+                                {% elif a.status == 'em_andamento' %}bg-warning
+                                {% elif a.status == 'finalizado' %}bg-success
+                                {% elif a.status == 'cancelado' %}bg-danger{% endif %}">
+                                {{ a.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+            <p class="text-muted">Você não tem agendamentos futuros.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Histórico -->
+<div class="card">
+    <div class="card-header" style="background: var(--dark-gray); color: var(--white);">
+        <i class="bi bi-clock-history me-2"></i>Histórico de Serviços
+    </div>
+    <div class="card-body">
+        {% if agendamentos_passados %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-person me-1"></i>Cliente</th>
+                        <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                        <th><i class="bi bi-calendar me-1"></i>Data</th>
+                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agendamentos_passados %}
+                    <tr>
+                        <td><strong>{{ a.cliente.first_name }} {{ a.cliente.last_name }}</strong></td>
+                        <td>{{ a.servico.nome }}</td>
+                        <td>{{ a.data_hora|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if a.status == 'agendado' %}bg-primary
+                                {% elif a.status == 'confirmado' %}bg-info
+                                {% elif a.status == 'em_andamento' %}bg-warning
+                                {% elif a.status == 'finalizado' %}bg-success
+                                {% elif a.status == 'cancelado' %}bg-danger{% endif %}">
+                                {{ a.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-clock-history fs-1 text-muted mb-3"></i>
+            <p class="text-muted">Você ainda não tem histórico de serviços.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

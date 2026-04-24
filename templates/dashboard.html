@@ -64,33 +64,33 @@
                         <th><i class="bi bi-scissors me-1"></i>Serviço</th>
                         <th><i class="bi bi-clock me-1"></i>Horário</th>
                         <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                        <th><i class="bi bi-hourglass me-1"></i>Tempo Restante</th>
                         <th><i class="bi bi-gear me-1"></i>Ação</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in agenda %}
                     <tr>
-                        <td><strong>{{ item.cliente.first_name }} {{ item.cliente.last_name }}</strong></td>
+                        <td><strong>{{ item.cliente }}</strong></td>
                         <td>{{ item.servico.nome }}</td>
                         <td>{{ item.data_hora|date:"H:i" }}</td>
                         <td>
                             <span class="badge 
                                 {% if item.status == 'agendado' %}bg-primary
                                 {% elif item.status == 'confirmado' %}bg-info
-                                {% elif item.status == 'em_andamento' %}bg-warning
+                                {% elif item.status == 'aguardando' %}bg-warning
+                                {% elif item.status == 'em_atendimento' %}bg-success
                                 {% elif item.status == 'finalizado' %}bg-success
-                                {% elif item.status == 'cancelado' %}bg-danger{% endif %}">
+                                {% elif item.status == 'cancelado' %}bg-danger
+                                {% elif item.status == 'atrasado' %}bg-danger{% endif %}">
                                 {{ item.get_status_display }}
                             </span>
                         </td>
                         <td>
-                            <a href="{% url 'editar_agendamento' item.id %}" class="btn btn-sm btn-outline-gold">
-                                <i class="bi bi-pencil"></i> Editar
-                            </a>
-                            <a href="{% url 'excluir_agendamento' item.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este agendamento?')">
-                                <i class="bi bi-trash"></i> Excluir
-                            </a>
-                        </td>
+                        <a href="{% url 'editar_agendamento' item.id %}" class="btn btn-sm btn-outline-gold">
+                            ✏️ Editar
+                        </a>
+                    </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -98,4 +98,79 @@
         </div>
     </div>
 </div>
+
+<script>
+// Função para atualizar contadores de tempo
+function atualizarContadores() {
+    const contadores = document.querySelectorAll('.countdown-timer');
+    contadores.forEach(contador => {
+        const id = contador.id.replace('countdown-', '');
+        const tempoRestante = parseInt(contador.dataset.tempoRestante || 0);
+        
+        if (tempoRestante > 0) {
+            const horas = Math.floor(tempoRestante / 3600);
+            const minutos = Math.floor((tempoRestante % 3600) / 60);
+            const segundos = tempoRestante % 60;
+            
+            contador.textContent = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+            contador.dataset.tempoRestante = tempoRestante - 1;
+            
+            // Mudar cor se estiver próximo (menos de 30 minutos)
+            if (tempoRestante < 1800) {
+                contador.style.color = '#dc3545'; // vermelho
+            } else if (tempoRestante < 3600) {
+                contador.style.color = '#ffc107'; // amarelo
+            } else {
+                contador.style.color = '#28a745'; // verde
+            }
+        } else {
+            contador.textContent = 'ATRASADO';
+            contador.style.color = '#dc3545';
+            
+            // Atualizar linha para vermelho se não estiver em atendimento ou aguardando
+            const linha = contador.closest('tr');
+            if (!linha.classList.contains('table-warning') && !linha.classList.contains('table-success')) {
+                linha.classList.add('table-danger');
+            }
+        }
+    });
+}
+
+// Função para atualizar status
+function atualizarStatus(agendamentoId, novoStatus) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    fetch(`/agendamento/status/${agendamentoId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfToken
+        },
+        body: `status=${novoStatus}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Recarrega a página para atualizar tudo
+        } else {
+            alert('Erro ao atualizar status: ' + (data.error || 'Erro desconhecido'));
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar status');
+    });
+}
+
+// Inicializar contadores com dados do servidor
+document.addEventListener('DOMContentLoaded', function() {
+    // Os contadores já têm data-tempo-restante definido no HTML
+    
+    // Atualizar contadores a cada segundo
+    setInterval(atualizarContadores, 1000);
+    
+    // Atualizar contadores imediatamente
+    atualizarContadores();
+});
+</script>
 {% endblock %}

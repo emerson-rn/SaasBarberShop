@@ -6,7 +6,11 @@ def cadastrar_usuario(request):
     if request.method == 'POST':
         form = UsuarioCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            if user.tipo == 'ADMIN':
+                user.is_staff = True
+                user.is_superuser = True
+            user.save()
             messages.success(request, f'Usuário {user.username} criado com sucesso!')
             return redirect('equipe')
     else:

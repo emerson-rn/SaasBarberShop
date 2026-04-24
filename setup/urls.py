@@ -17,8 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from agendamentos import views
-from agendamentos.views import dashboard_barbeiro, lista_estoque, lista_equipe
+from agendamentos.views import dashboard_barbeiro, estoque_view, lista_equipe
 from usuarios import views as usuarios_views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     # Página inicial (abre direto na dashboard)
@@ -32,7 +33,7 @@ urlpatterns = [
     
     # Telas customizadas com o novo Frontend
     path('dashboard/', dashboard_barbeiro, name='dashboard'),
-    path('estoque/', lista_estoque, name='estoque'),
+    path('estoque/', estoque_view, name='estoque'),
     path('equipe/', lista_equipe, name='equipe'),
     path('novo-agendamento/', views.novo_agendamento, name='novo_agendamento'),
     path('editar-agendamento/<int:pk>/', views.editar_agendamento, name='editar_agendamento'),
@@ -53,4 +54,6 @@ urlpatterns = [
     
     # Usuários
     path('novo-usuario/', usuarios_views.cadastrar_usuario, name='novo_usuario'),
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Barber Shop{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-black: #1a1a1a;
+            --secondary-black: #2d2d2d;
+            --dark-gray: #404040;
+            --light-gray: #f5f5f5;
+            --white: #ffffff;
+            --gold: #d4af37;
+            --gold-light: #e8c547;
+            --gold-dark: #b8962e;
+        }
+        
+        body { 
+            background-color: var(--light-gray); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        
+        .sidebar { 
+            min-height: 100vh; 
+            background: linear-gradient(180deg, var(--primary-black) 0%, var(--secondary-black) 100%); 
+            color: var(--white); 
+            padding-top: 20px; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.3);
+        }
+        
+        .nav-link { 
+            color: #b0b0b0; 
+            margin-bottom: 5px; 
+            transition: all 0.3s ease; 
+            border-radius: 8px; 
+            padding: 12px 15px; 
+            font-weight: 500;
+        }
+        
+        .nav-link:hover { 
+            color: var(--gold); 
+            background: rgba(212, 175, 55, 0.1); 
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active { 
+            color: var(--gold); 
+            background: rgba(212, 175, 55, 0.15); 
+            border-left: 3px solid var(--gold);
+        }
+        
+        .sidebar-heading { 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: .15rem; 
+            color: var(--gold); 
+            padding: 20px 15px 10px;
+            font-weight: 600;
+        }
+        
+        .brand {
+            color: var(--gold);
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px 0;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+        }
+        
+        .brand i {
+            font-size: 2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: var(--primary-black);
+            color: var(--white);
+            border-radius: 12px 12px 0 0 !important;
+            font-weight: 600;
+            border: none;
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--primary-black);
+            border: none;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gold:hover {
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+            color: var(--primary-black);
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+        }
+        
+        .btn-outline-gold {
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            background: transparent;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-gold:hover {
+            background: var(--gold);
+            color: var(--primary-black);
+        }
+        
+        .table thead {
+            background: var(--primary-black);
+            color: var(--white);
+        }
+        
+        .table th {
+            border: none;
+            padding: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+            border-color: #e8e8e8;
+        }
+        
+        .table tbody tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+        
+        .icon-gold {
+            color: var(--gold);
+        }
+        
+        .text-gold {
+            color: var(--gold) !important;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+        
+        h1, h2, h3, h4, h5 {
+            color: var(--primary-black);
+            font-weight: 700;
+        }
+        
+        .page-header {
+            color: var(--primary-black);
+            border-bottom: 3px solid var(--gold);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%);
+            color: var(--white);
+            border-radius: 12px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(212,175,55,0.2) 0%, transparent 70%);
+        }
+        
+        .stat-card .stat-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+        }
+        
+        .stat-card h3 {
+            color: var(--white);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-card h6 {
+            color: #b0b0b0;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+        
+        .logout-btn {
+            color: #ff6b6b !important;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 107, 107, 0.1) !important;
+        }
+        
+        .main-content {
+            padding: 30px;
+            background: var(--light-gray);
+            min-height: 100vh;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse show">
+                <div class="position-sticky">
+                    <div class="brand mb-3">
+                        <i class="bi bi-scissors"></i><br>
+                        BARBERLINE FULL
+                    </div>
+                    
+                    <div class="nav flex-column px-3">
+                        <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            <i class="bi bi-house-door me-2"></i> Início / Agenda
+                        </a>
+
+                        {% if user.tipo == 'CLIENTE' %}
+                            <a href="{% url 'portal_cliente' %}" class="nav-link {% if request.resolver_match.url_name == 'portal_cliente' %}active{% endif %}">
+                                <i class="bi bi-calendar-check me-2"></i> Meus Agendamentos
+                            </a>
+                            <a href="{% url 'novo_agendamento' %}" class="nav-link {% if request.resolver_match.url_name == 'novo_agendamento' %}active{% endif %}">
+                                <i class="bi bi-plus-circle me-2"></i> Novo Agendamento
+                            </a>
+                            <a href="{% url 'avaliacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'avaliacoes' or request.resolver_match.url_name == 'nova_avaliacao' %}active{% endif %}">
+                                <i class="bi bi-star-fill me-2"></i> Avaliações
+                            </a>
+                        {% endif %}
+                        
+                        {% if user.tipo == 'BARBEIRO' %}
+                            <a href="{% url 'portal_barbeiro' %}" class="nav-link {% if request.resolver_match.url_name == 'portal_barbeiro' %}active{% endif %}">
+                                <i class="bi bi-scissors me-2"></i> Meu Portal
+                            </a>
+                            <a href="{% url 'avaliacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'avaliacoes' %}active{% endif %}">
+                                <i class="bi bi-star-fill me-2"></i> Avaliações
+                            </a>
+                        {% endif %}
+
+                        {% if user.tipo == 'ADMIN' or user.is_staff %}
+                            <div class="sidebar-heading">Gestão</div>
+                            
+                            <a href="{% url 'estoque' %}" class="nav-link {% if request.resolver_match.url_name == 'estoque' %}active{% endif %}">
+                                <i class="bi bi-box-seam me-2"></i> Estoque
+                            </a>
+                            
+                            <a href="{% url 'equipe' %}" class="nav-link {% if request.resolver_match.url_name == 'equipe' %}active{% endif %}">
+                                <i class="bi bi-people me-2"></i> Equipe
+                            </a>
+
+                            <a href="{% url 'novo_agendamento' %}" class="nav-link">
+                                <i class="bi bi-plus-circle me-2"></i> Novo Agendamento
+                            </a>
+                            
+                            <div class="sidebar-heading">Relatórios</div>
+                            
+                            <a href="{% url 'historico' %}" class="nav-link {% if request.resolver_match.url_name == 'historico' %}active{% endif %}">
+                                <i class="bi bi-clock-history me-2"></i> Histórico
+                            </a>
+                            
+                            <a href="{% url 'relatorios' %}" class="nav-link {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}">
+                                <i class="bi bi-bar-chart me-2"></i> Relatórios
+                            </a>
+                            <a href="{% url 'avaliacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'avaliacoes' or request.resolver_match.url_name == 'nova_avaliacao' %}active{% endif %}">
+                                <i class="bi bi-star-fill me-2"></i> Avaliações
+                            </a>
+                            
+                            <a href="{% url 'painel_admin' %}" class="nav-link {% if request.resolver_match.url_name == 'painel_admin' %}active{% endif %}">
+                                <i class="bi bi-gear me-2"></i> Painel Admin
+                            </a>
+                        {% endif %}
+
+                        <div class="mt-4 pt-3 border-top border-secondary">
+                            <div class="d-flex align-items-center px-3 mb-3">
+                                <i class="bi bi-person-circle fs-4 icon-gold me-2"></i>
+                                <div>
+                                    <small class="text-muted">Logado como</small>
+                                    <div class="fw-bold">{{ user.first_name }} {{ user.last_name }}</div>
+                                </div>
+                            </div>
+                            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link logout-btn" style="background:none; border:none; cursor:pointer; width:100%; text-align:left;">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sair
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Popup de confirmação de chegada -->
+    <div class="modal fade" id="popupChegada" tabindex="-1" aria-labelledby="popupChegadaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--primary-black); color: var(--white); border: 2px solid var(--gold);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--gold);">
+                    <h5 class="modal-title" id="popupChegadaLabel" style="color: var(--gold);">
+                        <i class="bi bi-bell-fill me-2"></i>Confirmação de Chegada
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-3" style="font-size: 1.1rem;">O cliente chegou?</p>
+                    <div id="infoAgendamento" class="mb-4 p-3 rounded" style="background: var(--secondary-black);">
+                        <strong id="nomeCliente" class="d-block mb-1" style="color: var(--gold); font-size: 1.2rem;"></strong>
+                        <span id="horaAgendamento" class="text-light"></span>
+                    </div>
+                    <input type="hidden" id="agendamentoId">
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--gold); justify-content: center; gap: 10px;">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal" onclick="responderChegada('nao_confirmar')">
+                        <i class="bi bi-x-lg me-1"></i> Não Confirmou
+                    </button>
+                    <button type="button" class="btn btn-gold" onclick="responderChegada('confirmar')">
+                        <i class="bi bi-check-lg me-1"></i> Cliente Chegou
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    let popupMostrado = false;
+    
+    function verificarAgendamentos() {
+        fetch('{% url "verificar_pendentes" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.agendamentos && data.agendamentos.length > 0 && !popupMostrado) {
+                    const agendamento = data.agendamentos[0];
+                    document.getElementById('nomeCliente').textContent = agendamento.cliente;
+                    document.getElementById('horaAgendamento').textContent = 'Horário: ' + agendamento.data_hora;
+                    document.getElementById('agendamentoId').value = agendamento.id;
+                    
+                    var popup = new bootstrap.Modal(document.getElementById('popupChegada'));
+                    popup.show();
+                    popupMostrado = true;
+                    
+                    // Resetar flag quando o popup for fechado
+                    document.getElementById('popupChegada').addEventListener('hidden.bs.modal', function() {
+                        popupMostrado = false;
+                    });
+                }
+            })
+            .catch(error => console.error('Erro ao verificar agendamentos:', error));
+    }
+    
+    function responderChegada(acao) {
+        const agendamentoId = document.getElementById('agendamentoId').value;
+        const csrftoken = getCookie('csrftoken');
+        
+        fetch('/agendamento/confirmar/' + agendamentoId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'acao=' + acao
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var popup = bootstrap.Modal.getInstance(document.getElementById('popupChegada'));
+                popup.hide();
+                popupMostrado = false;
+            }
+        })
+        .catch(error => console.error('Erro ao confirmar:', error));
+    }
+    
+    // Verificar a cada 30 segundos
+    setInterval(verificarAgendamentos, 30000);
+    // Verificar ao carregar a página
+    document.addEventListener('DOMContentLoaded', verificarAgendamentos);
+    </script>
+</body>
+</html>
