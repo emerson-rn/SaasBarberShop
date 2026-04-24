@@ -1,0 +1,14 @@
+<h1>📢 Marketing</h1>
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="nome" placeholder="Nome da campanha" required><br><br>
+    <textarea name="mensagem" placeholder="Mensagem promocional" required></textarea><br><br>
+    <button type="submit">Salvar</button>
+</form>
+<hr>
+{% for c in campanhas %}
+<div>
+<strong>{{ c.nome }}</strong><br>
+{{ c.mensagem }}
+</div>
+{% endfor %}

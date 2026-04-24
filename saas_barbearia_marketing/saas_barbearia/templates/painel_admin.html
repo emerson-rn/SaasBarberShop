@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Painel Admin - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header">
+        <i class="bi bi-gear me-2 text-gold"></i>Painel Admin
+    </h1>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-people fs-1 icon-gold mb-2"></i>
+            <h5>Total Usuários</h5>
+            <h3 class="text-gold">{{ total_usuarios }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-scissors fs-1 icon-gold mb-2"></i>
+            <h5>Barbeiros</h5>
+            <h3 class="text-gold">{{ total_barbeiros }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-person-heart fs-1 icon-gold mb-2"></i>
+            <h5>Clientes</h5>
+            <h3 class="text-gold">{{ total_clientes }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-calendar-check fs-1 icon-gold mb-2"></i>
+            <h5>Agendamentos Hoje</h5>
+            <h3 class="text-gold">{{ agendamentos_hoje }}</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-calendar-event fs-1 icon-gold mb-2"></i>
+            <h5>Total Agendamentos</h5>
+            <h3 class="text-gold">{{ total_agendamentos }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-box-seam fs-1 icon-gold mb-2"></i>
+            <h5>Produtos</h5>
+            <h3 class="text-gold">{{ total_produtos }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid #dc3545;">
+            <i class="bi bi-exclamation-triangle fs-1 text-danger mb-2"></i>
+            <h5>Estoque Baixo</h5>
+            <h3 class="text-danger">{{ produtos_baixo_estoque }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3" style="border-top: 4px solid var(--gold);">
+            <i class="bi bi-person-plus fs-1 icon-gold mb-2"></i>
+            <h5>Usuários Cadastrados</h5>
+            <h3 class="text-gold">{{ total_usuarios }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning me-2"></i>Ações Rápidas
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <a href="{% url 'novo_agendamento' %}" class="btn btn-gold w-100 py-3">
+                            <i class="bi bi-calendar-plus fs-4 d-block mb-2"></i>
+                            Novo Agendamento
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'novo_produto' %}" class="btn btn-outline-gold w-100 py-3">
+                            <i class="bi bi-plus-circle fs-4 d-block mb-2"></i>
+                            Novo Produto
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'novo_usuario' %}" class="btn btn-outline-gold w-100 py-3">
+                            <i class="bi bi-person-plus fs-4 d-block mb-2"></i>
+                            Novo Usuário
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'estoque' %}" class="btn btn-outline-gold w-100 py-3">
+                            <i class="bi bi-box-seam fs-4 d-block mb-2"></i>
+                            Ver Estoque
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'equipe' %}" class="btn btn-outline-gold w-100 py-3">
+                            <i class="bi bi-people fs-4 d-block mb-2"></i>
+                            Ver Equipe
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'relatorios' %}" class="btn btn-outline-gold w-100 py-3">
+                            <i class="bi bi-bar-chart fs-4 d-block mb-2"></i>
+                            Ver Relatórios
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabelas de Dados -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-clock-history me-2"></i>Agendamentos Recentes</span>
+                <a href="{% url 'historico' %}" class="btn btn-sm btn-outline-gold">Ver Todos</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Serviço</th>
+                                <th>Data/Hora</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in agendamentos_recentes %}
+                            <tr>
+                                <td>{{ a.cliente.first_name }} {{ a.cliente.last_name }}</td>
+                                <td>{{ a.servico.nome }}</td>
+                                <td>{{ a.data_hora|date:"d/m H:i" }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if a.status == 'agendado' %}bg-primary
+                                        {% elif a.status == 'confirmado' %}bg-info
+                                        {% elif a.status == 'em_andamento' %}bg-warning
+                                        {% elif a.status == 'finalizado' %}bg-success
+                                        {% elif a.status == 'cancelado' %}bg-danger{% endif %}">
+                                        {{ a.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-3">Nenhum agendamento recente</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people me-2"></i>Usuários Recentes</span>
+                <a href="{% url 'equipe' %}" class="btn btn-sm btn-outline-gold">Ver Todos</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in usuarios_recentes %}
+                            <tr>
+                                <td>{{ u.first_name }} {{ u.last_name }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if u.tipo == 'ADMIN' %}bg-warning text-dark
+                                        {% elif u.tipo == 'BARBEIRO' %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ u.get_tipo_display }}
+                                    </span>
+                                </td>
+                                <td>{{ u.email|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="3" class="text-center py-3">Nenhum usuário recente</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
