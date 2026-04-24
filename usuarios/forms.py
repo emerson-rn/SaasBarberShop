@@ -3,6 +3,18 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
 
 class UsuarioCreationForm(UserCreationForm):
+    first_name = forms.CharField(
+        max_length=30,
+        required=True,
+        label="Nome",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Primeiro nome'})
+    )
+    last_name = forms.CharField(
+        max_length=150,
+        required=True,
+        label="Sobrenome",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sobrenome'})
+    )
     tipo = forms.ChoiceField(
         choices=Usuario.Tipo.choices,
         label="Tipo de Usuário",
@@ -22,7 +34,7 @@ class UsuarioCreationForm(UserCreationForm):
 
     class Meta:
         model = Usuario
-        fields = ('username', 'email', 'tipo', 'telefone', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'tipo', 'telefone', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

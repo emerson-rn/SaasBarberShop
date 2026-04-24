@@ -241,7 +241,7 @@
                 <div class="position-sticky">
                     <div class="brand mb-3">
                         <i class="bi bi-scissors"></i><br>
-                        BARBER SHOP
+                        BARBERLINE FULL
                     </div>
                     
                     <div class="nav flex-column px-3">
@@ -249,7 +249,22 @@
                             <i class="bi bi-house-door me-2"></i> Início / Agenda
                         </a>
 
-                        {% if user.is_staff %}
+                        {% if user.tipo == 'CLIENTE' %}
+                            <a href="{% url 'portal_cliente' %}" class="nav-link {% if request.resolver_match.url_name == 'portal_cliente' %}active{% endif %}">
+                                <i class="bi bi-calendar-check me-2"></i> Meus Agendamentos
+                            </a>
+                            <a href="{% url 'novo_agendamento' %}" class="nav-link {% if request.resolver_match.url_name == 'novo_agendamento' %}active{% endif %}">
+                                <i class="bi bi-plus-circle me-2"></i> Novo Agendamento
+                            </a>
+                        {% endif %}
+                        
+                        {% if user.tipo == 'BARBEIRO' %}
+                            <a href="{% url 'portal_barbeiro' %}" class="nav-link {% if request.resolver_match.url_name == 'portal_barbeiro' %}active{% endif %}">
+                                <i class="bi bi-scissors me-2"></i> Meu Portal
+                            </a>
+                        {% endif %}
+
+                        {% if user.tipo == 'ADMIN' or user.is_staff %}
                             <div class="sidebar-heading">Gestão</div>
                             
                             <a href="{% url 'estoque' %}" class="nav-link {% if request.resolver_match.url_name == 'estoque' %}active{% endif %}">
@@ -273,23 +288,26 @@
                             <a href="{% url 'relatorios' %}" class="nav-link {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}">
                                 <i class="bi bi-bar-chart me-2"></i> Relatórios
                             </a>
+                            
+                            <a href="{% url 'painel_admin' %}" class="nav-link {% if request.resolver_match.url_name == 'painel_admin' %}active{% endif %}">
+                                <i class="bi bi-gear me-2"></i> Painel Admin
+                            </a>
                         {% endif %}
-                        
-                        <a href="/admin/" class="nav-link">
-                            <i class="bi bi-gear me-2"></i> Painel Admin
-                        </a>
 
                         <div class="mt-4 pt-3 border-top border-secondary">
                             <div class="d-flex align-items-center px-3 mb-3">
                                 <i class="bi bi-person-circle fs-4 icon-gold me-2"></i>
                                 <div>
                                     <small class="text-muted">Logado como</small>
-                                    <div class="fw-bold">{{ user.username }}</div>
+                                    <div class="fw-bold">{{ user.first_name }} {{ user.last_name }}</div>
                                 </div>
                             </div>
-                            <a href="/admin/logout/" class="nav-link logout-btn">
-                                <i class="bi bi-box-arrow-right me-2"></i> Sair
-                            </a>
+                            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link logout-btn" style="background:none; border:none; cursor:pointer; width:100%; text-align:left;">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sair
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -312,5 +330,105 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
+    
+    <!-- Popup de confirmação de chegada -->
+    <div class="modal fade" id="popupChegada" tabindex="-1" aria-labelledby="popupChegadaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: var(--primary-black); color: var(--white); border: 2px solid var(--gold);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--gold);">
+                    <h5 class="modal-title" id="popupChegadaLabel" style="color: var(--gold);">
+                        <i class="bi bi-bell-fill me-2"></i>Confirmação de Chegada
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-3" style="font-size: 1.1rem;">O cliente chegou?</p>
+                    <div id="infoAgendamento" class="mb-4 p-3 rounded" style="background: var(--secondary-black);">
+                        <strong id="nomeCliente" class="d-block mb-1" style="color: var(--gold); font-size: 1.2rem;"></strong>
+                        <span id="horaAgendamento" class="text-light"></span>
+                    </div>
+                    <input type="hidden" id="agendamentoId">
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--gold); justify-content: center; gap: 10px;">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal" onclick="responderChegada('nao_confirmar')">
+                        <i class="bi bi-x-lg me-1"></i> Não Confirmou
+                    </button>
+                    <button type="button" class="btn btn-gold" onclick="responderChegada('confirmar')">
+                        <i class="bi bi-check-lg me-1"></i> Cliente Chegou
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    let popupMostrado = false;
+    
+    function verificarAgendamentos() {
+        fetch('{% url "verificar_pendentes" %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.agendamentos && data.agendamentos.length > 0 && !popupMostrado) {
+                    const agendamento = data.agendamentos[0];
+                    document.getElementById('nomeCliente').textContent = agendamento.cliente;
+                    document.getElementById('horaAgendamento').textContent = 'Horário: ' + agendamento.data_hora;
+                    document.getElementById('agendamentoId').value = agendamento.id;
+                    
+                    var popup = new bootstrap.Modal(document.getElementById('popupChegada'));
+                    popup.show();
+                    popupMostrado = true;
+                    
+                    // Resetar flag quando o popup for fechado
+                    document.getElementById('popupChegada').addEventListener('hidden.bs.modal', function() {
+                        popupMostrado = false;
+                    });
+                }
+            })
+            .catch(error => console.error('Erro ao verificar agendamentos:', error));
+    }
+    
+    function responderChegada(acao) {
+        const agendamentoId = document.getElementById('agendamentoId').value;
+        const csrftoken = getCookie('csrftoken');
+        
+        fetch('/agendamento/confirmar/' + agendamentoId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'acao=' + acao
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var popup = bootstrap.Modal.getInstance(document.getElementById('popupChegada'));
+                popup.hide();
+                popupMostrado = false;
+            }
+        })
+        .catch(error => console.error('Erro ao confirmar:', error));
+    }
+    
+    // Verificar a cada 30 segundos
+    setInterval(verificarAgendamentos, 30000);
+    // Verificar ao carregar a página
+    document.addEventListener('DOMContentLoaded', verificarAgendamentos);
+    </script>
 </body>
 </html>

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Agendamentos - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header">
+        <i class="bi bi-calendar-check me-2 text-gold"></i>Meus Agendamentos
+    </h1>
+    <div>
+        <span class="me-3">Olá, <strong>{{ user.first_name }} {{ user.last_name }}</strong></span>
+    </div>
+</div>
+
+<!-- Agendamentos Futuros -->
+<div class="card mb-4">
+    <div class="card-header" style="background: var(--primary-black); color: var(--gold);">
+        <i class="bi bi-clock me-2"></i>Próximos Agendamentos
+    </div>
+    <div class="card-body">
+        {% if agendamentos_futuros %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                        <th><i class="bi bi-person-badge me-1"></i>Barbeiro</th>
+                        <th><i class="bi bi-calendar me-1"></i>Data</th>
+                        <th><i class="bi bi-clock me-1"></i>Horário</th>
+                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agendamentos_futuros %}
+                    <tr>
+                        <td><strong>{{ a.servico.nome }}</strong><br><small class="text-muted">R$ {{ a.servico.preco }}</small></td>
+                        <td>{{ a.barbeiro.first_name }} {{ a.barbeiro.last_name }}</td>
+                        <td>{{ a.data_hora|date:"d/m/Y" }}</td>
+                        <td>{{ a.data_hora|date:"H:i" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if a.status == 'agendado' %}bg-primary
+                                {% elif a.status == 'confirmado' %}bg-info
+                                {% elif a.status == 'em_andamento' %}bg-warning
+                                {% elif a.status == 'finalizado' %}bg-success
+                                {% elif a.status == 'cancelado' %}bg-danger{% endif %}">
+                                {{ a.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+            <p class="text-muted">Você não tem agendamentos futuros.</p>
+            <a href="{% url 'novo_agendamento' %}" class="btn btn-gold">
+                <i class="bi bi-plus-lg me-1"></i> Agendar Serviço
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Agendamentos Passados -->
+<div class="card">
+    <div class="card-header" style="background: var(--secondary-black); color: var(--white);">
+        <i class="bi bi-clock-history me-2"></i>Histórico de Agendamentos
+    </div>
+    <div class="card-body">
+        {% if agendamentos_passados %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                        <th><i class="bi bi-person-badge me-1"></i>Barbeiro</th>
+                        <th><i class="bi bi-calendar me-1"></i>Data</th>
+                        <th><i class="bi bi-clock me-1"></i>Horário</th>
+                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in agendamentos_passados %}
+                    <tr>
+                        <td><strong>{{ a.servico.nome }}</strong><br><small class="text-muted">R$ {{ a.servico.preco }}</small></td>
+                        <td>{{ a.barbeiro.first_name }} {{ a.barbeiro.last_name }}</td>
+                        <td>{{ a.data_hora|date:"d/m/Y" }}</td>
+                        <td>{{ a.data_hora|date:"H:i" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if a.status == 'agendado' %}bg-primary
+                                {% elif a.status == 'confirmado' %}bg-info
+                                {% elif a.status == 'em_andamento' %}bg-warning
+                                {% elif a.status == 'finalizado' %}bg-success
+                                {% elif a.status == 'cancelado' %}bg-danger{% endif %}">
+                                {{ a.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-clock-history fs-1 text-muted mb-3"></i>
+            <p class="text-muted">Você ainda não tem histórico de agendamentos.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

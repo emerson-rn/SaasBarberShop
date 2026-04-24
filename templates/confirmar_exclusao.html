@@ -15,15 +15,28 @@
                         <i class="bi bi-trash text-danger" style="font-size: 3rem;"></i>
                     </div>
                     <p class="mb-4">Tem certeza que deseja excluir o item:</p>
-                    <h4 class="text-danger mb-4">{{ item.nome }}</h4>
+                    
+                    {% if tipo == 'agendamento' %}
+                        <h4 class="text-danger mb-4">{{ item.cliente.first_name }} {{ item.cliente.last_name }}</h4>
+                        <p class="text-muted">{{ item.servico.nome }} - {{ item.data_hora|date:"d/m/Y H:i" }}</p>
+                    {% else %}
+                        <h4 class="text-danger mb-4">{{ item.nome }}</h4>
+                    {% endif %}
+                    
                     <form method="POST" class="d-flex gap-2 justify-content-center">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger px-4">
                             <i class="bi bi-check-lg me-1"></i> Sim, Deletar
                         </button>
+                        {% if tipo == 'agendamento' %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-gold px-4">
+                            <i class="bi bi-x-lg me-1"></i> Cancelar
+                        </a>
+                        {% else %}
                         <a href="{% url 'estoque' %}" class="btn btn-outline-gold px-4">
                             <i class="bi bi-x-lg me-1"></i> Cancelar
                         </a>
+                        {% endif %}
                     </form>
                 </div>
             </div>

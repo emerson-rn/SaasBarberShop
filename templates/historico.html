@@ -61,8 +61,8 @@
                         {% for agendamento in agendamentos %}
                         <tr>
                             <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
-                            <td>{{ agendamento.cliente.username }}</td>
-                            <td>{{ agendamento.barbeiro.username }}</td>
+                            <td>{{ agendamento.cliente.first_name }} {{ agendamento.cliente.last_name }}</td>
+                            <td>{{ agendamento.barbeiro.first_name }} {{ agendamento.barbeiro.last_name }}</td>
                             <td>{{ agendamento.servico.nome }}</td>
                             <td>
                                 <span class="badge 
@@ -77,6 +77,9 @@
                             <td>
                                 <a href="{% url 'editar_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-gold">
                                     <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a href="{% url 'excluir_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este agendamento?')">
+                                    <i class="bi bi-trash"></i> Excluir
                                 </a>
                             </td>
                         </tr>

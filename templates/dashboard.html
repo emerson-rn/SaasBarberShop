@@ -70,7 +70,7 @@
                 <tbody>
                     {% for item in agenda %}
                     <tr>
-                        <td><strong>{{ item.cliente }}</strong></td>
+                        <td><strong>{{ item.cliente.first_name }} {{ item.cliente.last_name }}</strong></td>
                         <td>{{ item.servico.nome }}</td>
                         <td>{{ item.data_hora|date:"H:i" }}</td>
                         <td>
@@ -84,10 +84,13 @@
                             </span>
                         </td>
                         <td>
-                        <a href="{% url 'editar_agendamento' item.id %}" class="btn btn-sm btn-outline-gold">
-                            ✏️ Editar
-                        </a>
-                    </td>
+                            <a href="{% url 'editar_agendamento' item.id %}" class="btn btn-sm btn-outline-gold">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <a href="{% url 'excluir_agendamento' item.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este agendamento?')">
+                                <i class="bi bi-trash"></i> Excluir
+                            </a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -22,8 +22,25 @@
                 <form method="POST">
                     {% csrf_token %}
                     
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-person me-1"></i>Nome</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-person me-1"></i>Sobrenome</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
                     <div class="mb-3">
-                        <label class="form-label fw-bold"><i class="bi bi-person me-1"></i>Nome de Usuário</label>
+                        <label class="form-label fw-bold"><i class="bi bi-at me-1"></i>Nome de Usuário</label>
                         {{ form.username }}
                         {% if form.username.errors %}
                             <div class="text-danger small">{{ form.username.errors }}</div>
