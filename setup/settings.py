@@ -103,6 +103,12 @@ DATABASES = {
 }
 
 
+# Django Admin Customizations
+ADMIN_SITE_HEADER = "Barber Shop - Administração"
+ADMIN_SITE_TITLE = "Barber Shop Admin"
+ADMIN_INDEX_TITLE = "Bem-vindo ao Painel Administrativo"
+
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -141,9 +147,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Configurações do Admin
+ADMIN_SITE_HEADER = "Barber Shop - Administração"
+ADMIN_SITE_TITLE = "Barber Shop Admin"
+ADMIN_INDEX_TITLE = "Bem-vindo à Administração"
+
+# CSS customizado para o admin
+ADMIN_CSS = {
+    'all': ('admin/css/custom_admin.css',),
+}
