@@ -3,25 +3,25 @@ from .models import Agendamento
 from core.models import Produto, Servico 
 from usuarios.models import Usuario
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F, Count, Sum
 from django.http import JsonResponse
+from django.utils import timezone
+from datetime import datetime
 
 @login_required
 def dashboard_barbeiro(request):
     # DADOS ESTRUTURADOS: Busca a agenda ordenada
+    # Removido o loop que forçava agendamento.save(), evitando que o status seja sobrescrito indevidamente
     agenda = Agendamento.objects.all().order_by('data_hora')
-    
-    # Atualiza status automaticamente para agendamentos atrasados
-    for agendamento in agenda:
-        if agendamento.is_atrasado():
-            agendamento.save()
     
     # CONTROLE DE FLUXO: Cálculos para os indicadores da Dashboard
     total_agendamentos = agenda.count()
-    faturamento = sum(item.servico.preco for item in agenda if item.finalizado)
+    
+    # Proteção: verifica se o serviço existe antes de somar o preço
+    faturamento = sum(item.servico.preco for item in agenda if item.finalizado and item.servico)
     alertas_estoque = Produto.objects.filter(quantidade__lte=5).count()
     
-    # Adicionar tempo restante para cada agendamento
+    # Adicionar tempo restante para exibição no template (sem salvar no banco)
     for agendamento in agenda:
         agendamento.tempo_restante_segundos = agendamento.tempo_restante()
     
@@ -34,10 +34,7 @@ def dashboard_barbeiro(request):
     return render(request, 'dashboard.html', context)
 
 def estoque_view(request):
-    # DADOS ESTRUTURADOS: Busca todos os produtos
     produtos = Produto.objects.all().order_by('nome')
-    
-    # Lógica para os cartões de resumo do estoque
     total_itens = produtos.count()
     itens_baixo_estoque = produtos.filter(quantidade__lte=5).count()
     
@@ -49,7 +46,6 @@ def estoque_view(request):
     return render(request, 'estoque.html', context)
 
 def lista_equipe(request):
-    # DADOS ESTRUTURADOS: Segmentação para as abas do Frontend
     context = {
         'barbeiros': Usuario.objects.filter(tipo='BARBEIRO'),
         'clientes': Usuario.objects.filter(tipo='CLIENTE'),
@@ -62,22 +58,20 @@ def novo_agendamento(request):
     
     if request.method == 'POST':
         try:
-            # Captura e salva os dados no banco
+            # CONVERSÃO: Transforma a string do HTML em um objeto datetime ciente do fuso horário
+            data_hora_str = request.POST.get('data_hora')
+            data_hora_obj = datetime.strptime(data_hora_str, '%Y-%m-%dT%H:%M')
+            data_hora_obj = timezone.make_aware(data_hora_obj)
+
             Agendamento.objects.create(
                 cliente_id=request.POST.get('cliente'),
                 servico_id=request.POST.get('servico'),
                 barbeiro_id=request.POST.get('barbeiro'),
-                data_hora=request.POST.get('data_hora')
+                data_hora=data_hora_obj
             )
             return redirect('dashboard')
         except Exception as e:
-            # Extrai a mensagem de erro do ValidationError
-            if hasattr(e, 'message_dict'):
-                erro_validacao = ' '.join(e.message_dict.get('__all__', []))
-            elif hasattr(e, 'messages'):
-                erro_validacao = ' '.join(e.messages)
-            else:
-                erro_validacao = str(e)
+            erro_validacao = str(e)
 
     context = {
         'clientes': Usuario.objects.filter(tipo='CLIENTE'),
@@ -88,29 +82,26 @@ def novo_agendamento(request):
     return render(request, 'agendamento_form.html', context)
 
 def editar_agendamento(request, pk):
-    # Busca o agendamento específico ou retorna 404
     agendamento = get_object_or_404(Agendamento, pk=pk)
     erro_validacao = None
     
     if request.method == 'POST':
-        # Atualização dos dados estruturados
-        agendamento.cliente_id = request.POST.get('cliente')
-        agendamento.servico_id = request.POST.get('servico')
-        agendamento.barbeiro_id = request.POST.get('barbeiro')
-        agendamento.data_hora = request.POST.get('data_hora')
-        
         try:
+            # CONVERSÃO: Transforma a string do HTML em um objeto datetime ciente do fuso horário
+            data_hora_str = request.POST.get('data_hora')
+            data_hora_obj = datetime.strptime(data_hora_str, '%Y-%m-%dT%H:%M')
+            data_hora_obj = timezone.make_aware(data_hora_obj)
+
+            agendamento.cliente_id = request.POST.get('cliente')
+            agendamento.servico_id = request.POST.get('servico')
+            agendamento.barbeiro_id = request.POST.get('barbeiro')
+            agendamento.data_hora = data_hora_obj
+            
+            # O status será validado pela lógica do model.save()
             agendamento.save()
             return redirect('dashboard')
         except Exception as e:
-            # Extrai a mensagem de erro do ValidationError
-            if hasattr(e, 'message_dict'):
-                erro_validacao = ' '.join(e.message_dict.get('__all__', []))
-            elif hasattr(e, 'messages'):
-                erro_validacao = ' '.join(e.messages)
-            else:
-                erro_validacao = str(e)
-            # Remove o agendamento da query para manter os dados do POST no formulário
+            erro_validacao = str(e)
             agendamento.refresh_from_db()
 
     context = {
@@ -122,34 +113,25 @@ def editar_agendamento(request, pk):
     }
     return render(request, 'agendamento_form.html', context)
 
-# --- NOVA FUNÇÃO PARA CADASTRAR PRODUTO NO ESTOQUE ---
 @login_required
 def novo_produto(request):
     if request.method == 'POST':
-        nome = request.POST.get('nome')
-        quantidade = int(request.POST.get('quantidade', 0))
-        preco_venda = float(request.POST.get('preco', 0))
-
-        # Aqui usamos 'preco_custo' para bater com seu Model
         Produto.objects.create(
-            nome=nome,
-            quantidade=quantidade,
-            preco_custo=preco_venda
+            nome=request.POST.get('nome'),
+            quantidade=int(request.POST.get('quantidade', 0)),
+            preco_custo=float(request.POST.get('preco', 0))
         )
         return redirect('estoque')
-
     return render(request, 'produto_form.html')
 
 def editar_produto(request, pk):
     produto = get_object_or_404(Produto, pk=pk)
-    
     if request.method == 'POST':
         produto.nome = request.POST.get('nome')
         produto.quantidade = request.POST.get('quantidade')
-        produto.preco_custo = request.POST.get('preco') # Ajustado aqui também
+        produto.preco_custo = request.POST.get('preco')
         produto.save()
         return redirect('estoque')
-
     return render(request, 'produto_form.html', {'produto': produto})
 
 def deletar_produto(request, pk):
@@ -160,32 +142,25 @@ def deletar_produto(request, pk):
     return render(request, 'confirmar_exclusao.html', {'item': produto, 'tipo': 'produto'})
 
 def excluir_agendamento(request, pk):
-    """View para excluir um agendamento"""
     agendamento = get_object_or_404(Agendamento, pk=pk)
     if request.method == 'POST':
         agendamento.delete()
         return redirect('dashboard')
     return render(request, 'confirmar_exclusao.html', {'item': agendamento, 'tipo': 'agendamento'})
 
-# --- NOVAS FUNCIONALIDADES ---
-
 @login_required
 def historico_agendamentos(request):
-    """View para histórico de agendamentos do usuário logado"""
-    # Filtrar por tipo de usuário
     if request.user.tipo == 'BARBEIRO':
         agendamentos = Agendamento.objects.filter(barbeiro=request.user)
     elif request.user.tipo == 'CLIENTE':
         agendamentos = Agendamento.objects.filter(cliente=request.user)
-    else:  # ADMIN vê todos
+    else:
         agendamentos = Agendamento.objects.all()
     
-    # Filtragem por status
     status_filter = request.GET.get('status')
     if status_filter:
         agendamentos = agendamentos.filter(status=status_filter)
     
-    # Filtragem por data
     data_inicio = request.GET.get('data_inicio')
     data_fim = request.GET.get('data_fim')
     if data_inicio:
@@ -204,49 +179,23 @@ def historico_agendamentos(request):
 
 @login_required
 def relatorios(request):
-    """View para relatórios e estatísticas"""
-    from django.db.models import Count, Sum, Avg
-    from django.utils import timezone
     from datetime import timedelta
-    
-    # Período padrão: últimos 30 dias
     data_limite = timezone.now() - timedelta(days=30)
     
-    # Estatísticas de agendamentos
-    total_agendamentos = Agendamento.objects.filter(data_hora__gte=data_limite).count()
-    agendamentos_finalizados = Agendamento.objects.filter(
-        data_hora__gte=data_limite, 
-        status='finalizado'
-    ).count()
+    agendamentos_periodo = Agendamento.objects.filter(data_hora__gte=data_limite)
+    total_agendamentos = agendamentos_periodo.count()
+    agendamentos_finalizados = agendamentos_periodo.filter(status='finalizado').count()
     
-    # Faturamento
-    faturamento_total = Agendamento.objects.filter(
-        data_hora__gte=data_limite,
-        status='finalizado'
-    ).aggregate(total=Sum('servico__preco'))['total'] or 0
+    faturamento_total = agendamentos_periodo.filter(status='finalizado').aggregate(total=Sum('servico__preco'))['total'] or 0
+    por_status = agendamentos_periodo.values('status').annotate(count=Count('id'))
+    por_servico = agendamentos_periodo.values('servico__nome').annotate(count=Count('id')).order_by('-count')[:5]
     
-    # Agendamentos por status
-    por_status = Agendamento.objects.filter(
-        data_hora__gte=data_limite
-    ).values('status').annotate(count=Count('id'))
-    
-    # Agendamentos por serviço
-    por_servico = Agendamento.objects.filter(
-        data_hora__gte=data_limite
-    ).values('servico__nome').annotate(count=Count('id')).order_by('-count')[:5]
-    
-    # Agendamentos por barbeiro
-    por_barbeiro = Agendamento.objects.filter(
-        data_hora__gte=data_limite
-    ).values('barbeiro__username').annotate(
+    por_barbeiro = agendamentos_periodo.values('barbeiro__username').annotate(
         count=Count('id'),
         faturamento=Sum('servico__preco')
     ).order_by('-count')[:5]
     
-    # Produtos em falta
-    produtos_falta = Produto.objects.filter(
-        quantidade__lte=F('quantidade_minima')
-    ).order_by('quantidade')
+    produtos_falta = Produto.objects.filter(quantidade__lte=F('quantidade_minima')).order_by('quantidade')
     
     context = {
         'total_agendamentos': total_agendamentos,
@@ -261,36 +210,24 @@ def relatorios(request):
 
 @login_required
 def atualizar_status_agendamento(request, pk):
-    """View para atualizar o status de um agendamento via AJAX"""
     if request.method == 'POST':
         agendamento = get_object_or_404(Agendamento, pk=pk)
         novo_status = request.POST.get('status')
-        
         if novo_status in dict(Agendamento.STATUS_CHOICES):
             agendamento.status = novo_status
             if novo_status == 'finalizado':
                 agendamento.finalizado = True
             agendamento.save()
             return JsonResponse({'success': True, 'status': novo_status})
-        
-        return JsonResponse({'success': False, 'error': 'Status inválido'}, status=400)
-    
-    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
+    return JsonResponse({'success': False, 'error': 'Erro ao atualizar'}, status=400)
 
 @login_required
 def verificar_agendamentos_pendentes(request):
-    """View para verificar agendamentos que estão no horário e precisam de confirmação"""
-    from django.utils import timezone
     from datetime import timedelta
-    
     agora = timezone.now()
-    janela_inicio = agora - timedelta(minutes=5)
-    janela_fim = agora + timedelta(minutes=5)
-    
-    # Busca agendamentos que estão no horário (com janela de 5 minutos antes e depois)
     agendamentos_pendentes = Agendamento.objects.filter(
-        data_hora__gte=janela_inicio,
-        data_hora__lte=janela_fim,
+        data_hora__gte=agora - timedelta(minutes=5),
+        data_hora__lte=agora + timedelta(minutes=5),
         status__in=['agendado', 'confirmado']
     ).select_related('cliente', 'barbeiro', 'servico')
     
@@ -301,118 +238,58 @@ def verificar_agendamentos_pendentes(request):
             'barbeiro': a.barbeiro.username,
             'servico': a.servico.nome,
             'data_hora': a.data_hora.strftime('%H:%M'),
-            'data_hora_iso': a.data_hora.isoformat(),
         } for a in agendamentos_pendentes]
     })
 
 @login_required
 def confirmar_chegada(request, pk):
-    """View para confirmar ou recusar a chegada do cliente"""
     if request.method == 'POST':
         agendamento = get_object_or_404(Agendamento, pk=pk)
-        acao = request.POST.get('acao')
-        
-        if acao == 'confirmar':
+        if request.POST.get('acao') == 'confirmar':
             agendamento.status = 'confirmado'
             agendamento.save()
-            return JsonResponse({'success': True, 'mensagem': 'Chegada confirmada!'})
-        elif acao == 'nao_confirmar':
-            # Não faz nada, apenas fecha o popup
-            return JsonResponse({'success': True, 'mensagem': 'Cliente não confirmou'})
-        
-        return JsonResponse({'success': False, 'error': 'Ação inválida'}, status=400)
-    
-    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
+            return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
 
 @login_required
 def portal_cliente(request):
-    """Portal do cliente para visualizar seus agendamentos"""
-    if request.user.tipo != 'CLIENTE' and not request.user.is_staff:
-        return redirect('dashboard')
-    
-    # Agendamentos do cliente
     agendamentos = Agendamento.objects.filter(cliente=request.user).order_by('-data_hora')
-    
-    # Agendamentos futuros
-    from django.utils import timezone
-    agendamentos_futuros = agendamentos.filter(data_hora__gte=timezone.now())
-    
-    # Agendamentos passados
-    agendamentos_passados = agendamentos.filter(data_hora__lt=timezone.now())
-    
+    agora = timezone.now()
     context = {
         'agendamentos': agendamentos,
-        'agendamentos_futuros': agendamentos_futuros,
-        'agendamentos_passados': agendamentos_passados,
+        'agendamentos_futuros': agendamentos.filter(data_hora__gte=agora),
+        'agendamentos_passados': agendamentos.filter(data_hora__lt=agora),
     }
     return render(request, 'portal_cliente.html', context)
 
 @login_required
 def portal_barbeiro(request):
-    """Portal do barbeiro para visualizar seus agendamentos"""
-    if request.user.tipo != 'BARBEIRO':
-        return redirect('dashboard')
-    
-    # Agendamentos do barbeiro
-    from django.utils import timezone
     agendamentos = Agendamento.objects.filter(barbeiro=request.user).order_by('-data_hora')
-    
-    # Agendamentos de hoje
-    agendamentos_hoje = agendamentos.filter(data_hora__date=timezone.now().date())
-    
-    # Agendamentos futuros
-    agendamentos_futuros = agendamentos.filter(data_hora__gte=timezone.now())
-    
-    # Agendamentos passados
-    agendamentos_passados = agendamentos.filter(data_hora__lt=timezone.now())
-    
-    # Total de serviços realizados
-    total_servicos = agendamentos.filter(status='finalizado').count()
-    
-    # Total ganho (soma dos preços dos serviços finalizados)
-    total_ganho = sum(a.servico.preco for a in agendamentos.filter(status='finalizado'))
+    agora = timezone.now()
+    finalizados = agendamentos.filter(status='finalizado')
     
     context = {
-        'agendamentos': agendamentos,
-        'agendamentos_hoje': agendamentos_hoje,
-        'agendamentos_futuros': agendamentos_futuros,
-        'agendamentos_passados': agendamentos_passados,
-        'total_servicos': total_servicos,
-        'total_ganho': total_ganho,
+        'agendamentos_hoje': agendamentos.filter(data_hora__date=agora.date()),
+        'agendamentos_futuros': agendamentos.filter(data_hora__gte=agora),
+        'agendamentos_passados': agendamentos.filter(data_hora__lt=agora),
+        'total_servicos': finalizados.count(),
+        'total_ganho': sum(a.servico.preco for a in finalizados if a.servico),
     }
     return render(request, 'portal_barbeiro.html', context)
 
 @login_required
 def painel_admin(request):
-    """Painel Admin customizado com o mesmo layout do sistema"""
-    import django.utils.timezone
     if not (request.user.tipo == 'ADMIN' or request.user.is_staff):
         return redirect('dashboard')
     
-    # Estatísticas gerais
-    total_usuarios = Usuario.objects.count()
-    total_barbeiros = Usuario.objects.filter(tipo='BARBEIRO').count()
-    total_clientes = Usuario.objects.filter(tipo='CLIENTE').count()
-    total_agendamentos = Agendamento.objects.count()
-    agendamentos_hoje = Agendamento.objects.filter(data_hora__date=django.utils.timezone.now().date()).count()
-    total_produtos = Produto.objects.all().count()
-    produtos_baixo_estoque = Produto.objects.filter(quantidade__lte=F('quantidade_minima')).count()
-    
-    # Agendamentos recentes
-    agendamentos_recentes = Agendamento.objects.all().order_by('-data_hora')[:10]
-    
-    # Usuários recentes
-    usuarios_recentes = Usuario.objects.all().order_by('-date_joined')[:10]
-    
     context = {
-        'total_usuarios': total_usuarios,
-        'total_barbeiros': total_barbeiros,
-        'total_clientes': total_clientes,
-        'total_agendamentos': total_agendamentos,
-        'agendamentos_hoje': agendamentos_hoje,
-        'total_produtos': total_produtos,
-        'produtos_baixo_estoque': produtos_baixo_estoque,
-        'agendamentos_recentes': agendamentos_recentes,
-        'usuarios_recentes': usuarios_recentes,
+        'total_usuarios': Usuario.objects.count(),
+        'total_barbeiros': Usuario.objects.filter(tipo='BARBEIRO').count(),
+        'total_agendamentos': Agendamento.objects.count(),
+        'agendamentos_hoje': Agendamento.objects.filter(data_hora__date=timezone.now().date()).count(),
+        'total_produtos': Produto.objects.count(),
+        'produtos_baixo_estoque': Produto.objects.filter(quantidade__lte=F('quantidade_minima')).count(),
+        'agendamentos_recentes': Agendamento.objects.order_by('-data_hora')[:10],
+        'usuarios_recentes': Usuario.objects.order_by('-date_joined')[:10],
     }
-    return render(request, 'painel_admin.html', context)
+    return render(request, 'painel_admin.html', context)    
