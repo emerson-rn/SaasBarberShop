@@ -1,0 +1,37 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import Usuario
+
+
+class UsuarioCreationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=True, label="Nome", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Primeiro nome'}))
+    last_name = forms.CharField(max_length=150, required=True, label="Sobrenome", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Sobrenome'}))
+    tipo = forms.ChoiceField(choices=Usuario.Tipo.choices, label="Tipo de Usuário", required=False, widget=forms.Select(attrs={'class': 'form-select'}))
+    telefone = forms.CharField(max_length=15, required=False, label="Telefone", widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '(00) 00000-0000'}))
+    email = forms.EmailField(required=False, label="Email", widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@exemplo.com'}))
+
+    class Meta:
+        model = Usuario
+        fields = ('username', 'first_name', 'last_name', 'email', 'tipo', 'telefone', 'password1', 'password2')
+
+    def __init__(self, *args, allow_tipo=False, **kwargs):
+        self.allow_tipo = allow_tipo
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Nome de usuário'})
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Senha'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirmar senha'})
+        if not allow_tipo:
+            self.fields.pop('tipo', None)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # Segurança: cadastro público SEMPRE cria cliente. Apenas admin/staff pode escolher outro perfil.
+        user.tipo = self.cleaned_data.get('tipo') if self.allow_tipo else Usuario.Tipo.CLIENTE
+        if user.tipo == Usuario.Tipo.ADMIN:
+            user.is_staff = True
+            user.is_superuser = True
+        user.telefone = self.cleaned_data.get('telefone')
+        user.email = self.cleaned_data.get('email')
+        if commit:
+            user.save()
+        return user

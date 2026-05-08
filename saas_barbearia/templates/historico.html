@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Histórico - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <h1 class="page-header"><i class="bi bi-clock-history me-2 text-gold"></i>Histórico de Agendamentos</h1>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label"><i class="bi bi-filter me-1"></i>Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label"><i class="bi bi-calendar me-1"></i>Data Início</label>
+                    <input type="date" name="data_inicio" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label"><i class="bi bi-calendar me-1"></i>Data Fim</label>
+                    <input type="date" name="data_fim" class="form-control">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-gold w-100">
+                        <i class="bi bi-search me-1"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Agendamentos -->
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-list-ul me-2"></i>Lista de Agendamentos
+        </div>
+        <div class="card-body">
+            {% if agendamentos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-calendar me-1"></i>Data/Hora</th>
+                            <th><i class="bi bi-person me-1"></i>Cliente</th>
+                            <th><i class="bi bi-person-badge me-1"></i>Barbeiro</th>
+                            <th><i class="bi bi-scissors me-1"></i>Serviço</th>
+                            <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                            <th><i class="bi bi-gear me-1"></i>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agendamento in agendamentos %}
+                        <tr>
+                            <td>{{ agendamento.data_hora|date:"d/m/Y H:i" }}</td>
+                            <td>{{ agendamento.cliente.first_name }} {{ agendamento.cliente.last_name }}</td>
+                            <td>{{ agendamento.barbeiro.first_name }} {{ agendamento.barbeiro.last_name }}</td>
+                            <td>{{ agendamento.servico.nome }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if agendamento.status == 'agendado' %}bg-primary
+                                    {% elif agendamento.status == 'confirmado' %}bg-info
+                                    {% elif agendamento.status == 'em_andamento' %}bg-warning
+                                    {% elif agendamento.status == 'finalizado' %}bg-success
+                                    {% elif agendamento.status == 'cancelado' %}bg-danger{% endif %}">
+                                    {{ agendamento.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{% url 'editar_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-gold">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <a href="{% url 'excluir_agendamento' agendamento.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este agendamento?')">
+                                    <i class="bi bi-trash"></i> Excluir
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted text-center py-4">Nenhum agendamento encontrado.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

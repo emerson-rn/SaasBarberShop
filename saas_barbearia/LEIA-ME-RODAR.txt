@@ -1,0 +1,24 @@
+COMO RODAR O PROJETO
+
+1) Abra o PowerShell dentro da pasta saas_barbearia.
+2) Instale as dependências:
+   python -m pip install --user -r requirements.txt
+
+3) Aplique o banco:
+   python manage.py makemigrations
+   python manage.py migrate
+
+4) Crie o administrador:
+   python manage.py createsuperuser
+
+5) Rode:
+   python manage.py runserver 8080
+
+Acesse:
+http://127.0.0.1:8080/
+
+IMPORTANTE:
+- Cadastro público cria apenas CLIENTE.
+- Barbeiro e Administrador só podem ser criados pelo administrador logado.
+- O cliente só vê portal do cliente, novo agendamento e avaliações.
+- O administrador gerencia agenda, equipe, serviços, estoque, relatórios e avaliações.

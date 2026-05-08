@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if servico %}Editar Serviço{% else %}Novo Serviço{% endif %} - Barber Shop{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center pt-3 pb-2 mb-4">
+    <h1 class="page-header"><i class="bi bi-scissors me-2 text-gold"></i>{% if servico %}Editar Serviço{% else %}Novo Serviço{% endif %}</h1>
+    <a href="{% url 'servicos' %}" class="btn btn-outline-gold"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-card-checklist me-2"></i>Dados do Serviço</div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nome do serviço</label>
+                        <input type="text" name="nome" class="form-control" value="{{ servico.nome|default:'' }}" placeholder="Ex: Corte degradê, Barba, Combo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descrição</label>
+                        <textarea name="descricao" class="form-control" rows="3" placeholder="Descreva o serviço para organizar melhor a venda">{{ servico.descricao|default:'' }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Preço</label>
+                            <input type="number" name="preco" class="form-control" step="0.01" min="0" value="{{ servico.preco|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Duração em minutos</label>
+                            <input type="number" name="duracao_minutos" class="form-control" min="10" step="5" value="{{ servico.duracao_minutos|default:30 }}" required>
+                        </div>
+                    </div>
+                    <button class="btn btn-gold btn-lg w-100" type="submit"><i class="bi bi-check-lg me-1"></i>Salvar Serviço</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

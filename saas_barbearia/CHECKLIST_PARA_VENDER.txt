@@ -1,0 +1,12 @@
+CHECKLIST DA VERSÃO CORRIGIDA PARA VENDA
+
+[OK] Cadastro público cria somente CLIENTE.
+[OK] Cliente não consegue escolher perfil de Administrador ou Barbeiro.
+[OK] Administrador consegue cadastrar Cliente, Barbeiro e Administrador.
+[OK] Área de Serviços criada para cadastrar cortes, barba, combos e preços.
+[OK] Estoque, Equipe, Relatórios e Painel Admin protegidos para administrador.
+[OK] Cliente só vê seus próprios agendamentos e avaliações.
+[OK] Barbeiro vê seu portal e suas avaliações.
+[OK] Aba Avaliações mantida e protegida.
+[OK] Botões principais e links do menu ajustados.
+[OK] Arquivos BAT adicionados para facilitar rodar e criar admin.

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Nova Avaliação{% endblock %}
+
+{% block content %}
+<h1 class="page-header"><i class="bi bi-star-fill icon-gold me-2"></i>Nova Avaliação</h1>
+
+<div class="card">
+    <div class="card-header">Dados da avaliação</div>
+    <div class="card-body">
+        {% if agendamentos %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">Atendimento finalizado</label>
+                    <select name="agendamento" class="form-select" required>
+                        <option value="">Selecione...</option>
+                        {% for agendamento in agendamentos %}
+                            <option value="{{ agendamento.id }}">
+                                {{ agendamento.data_hora|date:'d/m/Y H:i' }} - {{ agendamento.servico.nome }} - Cliente: {{ agendamento.cliente.username }} - Barbeiro: {{ agendamento.barbeiro.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Nota</label>
+                    <select name="nota" class="form-select" required>
+                        <option value="">Selecione...</option>
+                        <option value="5">5 - Excelente</option>
+                        <option value="4">4 - Muito bom</option>
+                        <option value="3">3 - Bom</option>
+                        <option value="2">2 - Regular</option>
+                        <option value="1">1 - Ruim</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Comentário</label>
+                    <textarea name="comentario" class="form-control" rows="4" placeholder="Conte como foi o atendimento..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-gold"><i class="bi bi-check-lg me-1"></i> Salvar Avaliação</button>
+                <a href="{% url 'avaliacoes' %}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+            </form>
+        {% else %}
+            <p class="text-muted">Não há atendimentos finalizados disponíveis para avaliação.</p>
+            <a href="{% url 'avaliacoes' %}" class="btn btn-outline-gold">Voltar</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
