@@ -17,15 +17,15 @@ import os
 # Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Construa caminhos dentro do projeto assim: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# AVISO DE SEGURANÇA: mantenha a chave secreta usada em produção em sigilo!
 # Use variáveis de ambiente para maior segurança
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ms*iwssleh&8i)7b5t48mp(kdqjpy3=p$6mbbr2l^njt=q%wqu')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# AVISO DE SEGURANÇA: não deixe DEBUG ligado em produção!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # ALLOWED_HOSTS - configurar em produção
@@ -92,7 +92,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'setup.wsgi.application'
 
 
-# Database
+# Banco de dados
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
@@ -103,7 +103,7 @@ DATABASES = {
 }
 
 
-# Django Admin Customizations
+# Personalizações do Django Admin
 ADMIN_SITE_HEADER = "Barber Shop - Administração"
 ADMIN_SITE_TITLE = "Barber Shop Admin"
 ADMIN_INDEX_TITLE = "Bem-vindo ao Painel Administrativo"
